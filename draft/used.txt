@@ -1,0 +1,18 @@
+1. CREATE TABLE Investor, Car, client, order
+  Bebtors,  InvestorBenefit
+
+2.Models Investor, Car, client, order
+  Bebtors,  InvestorBenefit
+
+3.CRUD Model vs Api Investor, Car, client, order + Swagger
+
+4.Api va GetList  Bebtors,  InvestorBenefit + Swagger
+
+
+Used websites{
+    https://www.techonthenet.com
+    https://www.postgresqltutorial.com
+    https://github.com
+    https://go.dev
+    https://gorm.io
+}
