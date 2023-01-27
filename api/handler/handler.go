@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"add/storage"
+	"app/storage"
 )
 
 type Handler struct {

@@ -1,12 +1,14 @@
 package main
 
 import (
-	"add/api"
 	"context"
-	"add/config"
-	"add/storage/postgres"
-	"github.com/gin-gonic/gin"
 	"log"
+
+	"github.com/gin-gonic/gin"
+
+	"app/api"
+	"app/config"
+	"app/storage/postgres"
 )
 
 func main() {
@@ -14,9 +16,9 @@ func main() {
 	cfg := config.Load()
 
 	storage, err := postgres.NewPostgres(context.Background(), cfg)
-		if err != nil {
-			log.Fatal("failed to connect database:", err)
-		}
+	if err != nil {
+		log.Fatal("failed to connect database:", err)
+	}
 	defer storage.CloseDB()
 
 	r := gin.New()
@@ -26,7 +28,7 @@ func main() {
 	api.NewApi(r, storage)
 
 	err = r.Run(cfg.HTTPPort)
-		if err != nil {
-			panic(err)
-		}
+	if err != nil {
+		panic(err)
+	}
 }

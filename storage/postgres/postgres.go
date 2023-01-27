@@ -6,19 +6,19 @@ import (
 
 	"github.com/jackc/pgx/v4/pgxpool"
 
-	"add/config"
-	"add/storage"
+	"app/config"
+	"app/storage"
 )
 
 type Store struct {
 	db       *pgxpool.Pool
-	car      *CarRepo
-	order    *OrderRepo
-	client   *ClientRepo
 	investor *InvestorRepo
-	calc 	 *CalcRepo
+	car      *CarRepo
+	client   *ClientRepo
+	order    *OrderRepo
+	report   *ReportRepo
+	branch   *BranchRepo
 }
-
 
 func NewPostgres(ctx context.Context, cfg config.Config) (storage.StorageI, error) {
 
@@ -46,24 +46,16 @@ func NewPostgres(ctx context.Context, cfg config.Config) (storage.StorageI, erro
 	return &Store{
 		db:       pool,
 		investor: NewInvestorRepo(pool),
-		client:   NewClientRepo(pool),
 		car:      NewCarRepo(pool),
+		client:   NewClientRepo(pool),
 		order:    NewOrderRepo(pool),
-		calc: NewCalculationRepo(pool),
+		report:   NewReportRepo(pool),
+		branch:   NewBranchRepo(pool),
 	}, nil
 }
 
 func (s *Store) CloseDB() {
 	s.db.Close()
-}
-
-func (s *Store) Client() storage.ClientRepoI {
-
-	if s.client == nil {
-		s.client = NewClientRepo(s.db)
-	}
-
-	return s.client
 }
 
 func (s *Store) Investor() storage.InvestorRepoI {
@@ -84,6 +76,15 @@ func (s *Store) Car() storage.CarRepoI {
 	return s.car
 }
 
+func (s *Store) Client() storage.ClientRepoI {
+
+	if s.client == nil {
+		s.client = NewClientRepo(s.db)
+	}
+
+	return s.client
+}
+
 func (s *Store) Order() storage.OrderRepoI {
 
 	if s.order == nil {
@@ -93,11 +94,20 @@ func (s *Store) Order() storage.OrderRepoI {
 	return s.order
 }
 
-func (s *Store) Calc() storage.CalcRepoI {
+func (s *Store) Report() storage.ReportRepoI {
 
-	if s.calc == nil {
-		s.calc = NewCalculationRepo(s.db)
+	if s.report == nil {
+		s.report = NewReportRepo(s.db)
 	}
 
-	return s.calc
+	return s.report
+}
+
+func (s *Store) Branch() storage.BranchRepoI {
+
+	if s.branch == nil {
+		s.branch =NewBranchRepo(s.db)
+	}
+
+	return s.branch
 }

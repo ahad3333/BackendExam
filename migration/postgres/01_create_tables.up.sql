@@ -1,26 +1,26 @@
-CREATE TABLE Investor (
+CREATE TABLE investor (
     id UUID PRIMARY KEY,
     name VARCHAR NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP
 );
 
-CREATE TABLE Car(
-    id UUID PRIMARY KEY,
+CREATE TABLE car (
+    id UUID PRIMARY KEY, 
     state_number VARCHAR NOT NULL,
-    model VARCHAR NOT NULL,
+    model  VARCHAR NOT NULL,
     status VARCHAR DEFAULT 'in_stock',
     price NUMERIC NOT NULL,
-    daily_limit NUMERIC NOT NULL,
-    over_limit NUMERIC NOT NULL,
-    investor_percentage VARCHAR DEFAULT '%70',
+    daily_limit INT NOT NULL,
+    over_limit INT NOT NULL,
+    investor_percentage NUMERIC NOT NULL,
     investor_id UUID NOT NULL REFERENCES investor(id),
-    km NUMERIC NOT NULL,
+    km INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP
 );
 
-CREATE TABLE Client (
+CREATE TABLE client (
     id UUID PRIMARY KEY,
     first_name VARCHAR NOT NULL,
     last_name VARCHAR NOT NULL,
@@ -30,30 +30,25 @@ CREATE TABLE Client (
     updated_at TIMESTAMP
 );
 
-CREATE TABLE "Order" (
+CREATE TABLE "order" (
     id UUID PRIMARY KEY,
     car_id UUID NOT NULL REFERENCES car(id),
     client_id UUID NOT NULL REFERENCES client(id),
-    total_price NUMERIC,
-    day_count NUMERIC,
+    total_price NUMERIC NOT NULL,
+    paid_price NUMERIC DEFAULT 0,
+    day_count INT NOT NULL,
     give_km NUMERIC,
-    paid_price NUMERIC,
     receive_km NUMERIC,
-    status text DEFAULT 'new',
+    status VARCHAR NOT NULL DEFAULT 'new',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP
 );
 
-CREATE TABLE InvestorBenefit (
-    name VARCHAR NOT NULL,
-    price NUMERIC,
+CREATE TABLE debtors (
+    price NUMERIC NOT NULL,
+    car_id UUID NOT NULL REFERENCES car(id),
+    client_id UUID NOT NULL REFERENCES client(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP
 );
 
-CREATE TABLE Bebtors (
-    name VARCHAR NOT NULL,
-    Bebt NUMERIC,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP
-);

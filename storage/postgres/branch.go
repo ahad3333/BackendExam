@@ -12,24 +12,24 @@ import (
 	"github.com/google/uuid"
 )
 
-type InvestorRepo struct {
+type BranchRepo struct {
 	db *pgxpool.Pool
 }
 
-func NewInvestorRepo(db *pgxpool.Pool) *InvestorRepo {
-	return &InvestorRepo{
+func NewBranchRepo(db *pgxpool.Pool) *BranchRepo {
+	return &BranchRepo{
 		db: db,
 	}
 }
 
-func (r *InvestorRepo) Insert(ctx context.Context, Investor *models.CreateInvestor) (string, error) {
+func (r *BranchRepo) Insert(ctx context.Context, branch *models.CreateBranch) (string, error) {
 
 	var (
 		id = uuid.New().String()
 	)
 
 	query := `
-		INSERT INTO investor (
+		INSERT INTO branch (
 			id,
 			name,
 			updated_at
@@ -38,7 +38,7 @@ func (r *InvestorRepo) Insert(ctx context.Context, Investor *models.CreateInvest
 
 	_, err := r.db.Exec(ctx, query,
 		id,
-		Investor.Name,
+		branch.Name,
 	)
 
 	if err != nil {
@@ -48,7 +48,7 @@ func (r *InvestorRepo) Insert(ctx context.Context, Investor *models.CreateInvest
 	return id, nil
 }
 
-func (r *InvestorRepo) GetByID(ctx context.Context, req *models.InvestorPrimeryKey) (*models.Investor, error) {
+func (r *BranchRepo) GetByID(ctx context.Context, req *models.BranchPrimeryKey) (*models.Branch, error) {
 
 	var (
 		id        sql.NullString
@@ -63,7 +63,7 @@ func (r *InvestorRepo) GetByID(ctx context.Context, req *models.InvestorPrimeryK
 			name,
 			created_at,
 			updated_at
-		FROM investor
+		FROM branch
 		WHERE id = $1
 	`
 
@@ -78,7 +78,7 @@ func (r *InvestorRepo) GetByID(ctx context.Context, req *models.InvestorPrimeryK
 		return nil, err
 	}
 
-	return &models.Investor{
+	return &models.Branch{
 		Id:        id.String,
 		Name:      name.String,
 		CreatedAt: createdAt.String,
@@ -86,20 +86,12 @@ func (r *InvestorRepo) GetByID(ctx context.Context, req *models.InvestorPrimeryK
 	}, err
 }
 
-func (r *InvestorRepo) GetList(ctx context.Context, req *models.GetListInvestorRequest) (*models.GetListInvestorResponse, error) {
+func (r *BranchRepo) GetList(ctx context.Context, req *models.GetListBranchRequest) (*models.GetListBranchResponse, error) {
 	var (
 		offset = "OFFSET 0"
 		limit  = "LIMIT 10"
-		resp   = &models.GetListInvestorResponse{}
+		resp   = &models.GetListBranchResponse{}
 	)
-
-	if req.Offset > 0 {
-		offset = fmt.Sprintf("OFFSET %d", req.Offset)
-	}
-
-	if req.Limit > 0 {
-		limit = fmt.Sprintf("LIMIT %d", req.Limit)
-	}
 
 	query := `
 		SELECT
@@ -108,12 +100,20 @@ func (r *InvestorRepo) GetList(ctx context.Context, req *models.GetListInvestorR
 			name,
 			created_at,
 			updated_at
-		FROM investor
+		FROM branch
 	`
+	if req.Offset > 0 {
+		offset = fmt.Sprintf(" OFFSET %d", req.Offset)
+	}
+
+	if req.Limit > 0 {
+		limit = fmt.Sprintf(" LIMIT %d", req.Limit)
+	}
 
 	query += offset + limit
 
 	rows, err := r.db.Query(ctx, query)
+
 	defer rows.Close()
 
 	if err != nil {
@@ -128,7 +128,7 @@ func (r *InvestorRepo) GetList(ctx context.Context, req *models.GetListInvestorR
 			createdAt sql.NullString
 			updatedAt sql.NullString
 		)
-
+	
 		err = rows.Scan(
 			&resp.Count,
 			&id,
@@ -136,8 +136,7 @@ func (r *InvestorRepo) GetList(ctx context.Context, req *models.GetListInvestorR
 			&createdAt,
 			&updatedAt,
 		)
-
-		resp.Investors = append(resp.Investors, &models.Investor{
+		resp.Branchs = append(resp.Branchs, &models.Branch{
 			Id:        id.String,
 			Name:      name.String,
 			CreatedAt: createdAt.String,
@@ -148,10 +147,10 @@ func (r *InvestorRepo) GetList(ctx context.Context, req *models.GetListInvestorR
 	return resp, err
 }
 
-func (r *InvestorRepo) Update(ctx context.Context, Investor *models.UpdateInvestor) error {
+func (r *BranchRepo) Update(ctx context.Context, branch *models.UpdateBranch) error {
 	query := `
 		UPDATE
-			investor
+			branch
 		SET
 			name = $2,
 			updated_at = now()
@@ -159,8 +158,8 @@ func (r *InvestorRepo) Update(ctx context.Context, Investor *models.UpdateInvest
 	`
 
 	_, err := r.db.Exec(ctx, query,
-		Investor.Id,
-		Investor.Name,
+		branch.Id,
+		branch.Name,
 	)
 
 	if err != nil {
@@ -170,9 +169,9 @@ func (r *InvestorRepo) Update(ctx context.Context, Investor *models.UpdateInvest
 	return nil
 }
 
-func (r *InvestorRepo) Delete(ctx context.Context, req *models.InvestorPrimeryKey) error {
+func (r *BranchRepo) Delete(ctx context.Context, req *models.BranchPrimeryKey) error {
 
-	_, err := r.db.Exec(ctx, "delete from investor where id = $1", req.Id)
+	_, err := r.db.Exec(ctx, "delete from branch where id = $1", req.Id)
 	if err != nil {
 		return err
 	}

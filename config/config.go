@@ -15,7 +15,7 @@ func Load() Config {
 
 	cfg := Config{}
 
-	cfg.HTTPPort = ":8000"
+	cfg.HTTPPort = ":9090"
 
 	cfg.PostgresHost = "localhost"
 	cfg.PostgresUser = "postgres"

@@ -1,14 +1,15 @@
 package postgres
 
 import (
-	"add/models"
-	"database/sql"
 	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4/pgxpool"
-	
+
+	"app/models"
+	"app/pkg/helper"
 )
 
 type ClientRepo struct {
@@ -21,40 +22,49 @@ func NewClientRepo(db *pgxpool.Pool) *ClientRepo {
 	}
 }
 
-func (r *ClientRepo) Insert(ctx context.Context, req *models.CreateClient) (string, error) {
+func (r *ClientRepo) Insert(ctx context.Context, client *models.CreateClient) (string, error) {
 
 	var (
 		id = uuid.New().String()
 	)
 
 	query := `
-		INSERT INTO Client (
-				id,
-				first_name,
-				last_name,
-				address,
-				phone_number,
-				updated_at
+		INSERT INTO client (
+			id,
+			first_name,
+			last_name,
+			address,
+			phone_number,
+			updated_at
 		) VALUES ($1, $2, $3, $4, $5, now())
-	 `
+	`
 
 	_, err := r.db.Exec(ctx, query,
 		id,
-		req.First_name,
-		req.Last_name,
-		req.Address,
-		req.Phone_number,
+		client.FirstName,
+		client.LastName,
+		client.Address,
+		client.PhoneNumber,
 	)
 
 	if err != nil {
 		return "", err
 	}
 
-
 	return id, nil
 }
 
 func (r *ClientRepo) GetByID(ctx context.Context, req *models.ClientPrimeryKey) (*models.Client, error) {
+
+	var (
+		id          sql.NullString
+		firstName   sql.NullString
+		lastName    sql.NullString
+		address     sql.NullString
+		phoneNumber sql.NullString
+		createdAt   sql.NullString
+		updatedAt   sql.NullString
+	)
 
 	query := `
 		SELECT
@@ -65,56 +75,51 @@ func (r *ClientRepo) GetByID(ctx context.Context, req *models.ClientPrimeryKey) 
 			phone_number,
 			created_at,
 			updated_at
-		FROM
-			Client
+		FROM client
 		WHERE id = $1
 	`
 
-	var (
-		id          	 sql.NullString
-		first_name       sql.NullString
-		last_name        sql.NullString
-		address          sql.NullString
-		phone_number     sql.NullString
-		createdAt   	 sql.NullString
-		updatedAt   	 sql.NullString
+	err := r.db.QueryRow(ctx, query, req.Id).Scan(
+		&id,
+		&firstName,
+		&lastName,
+		&address,
+		&phoneNumber,
+		&createdAt,
+		&updatedAt,
 	)
-
-	err := r.db.QueryRow(ctx, query, req.Id).
-		Scan(
-			&id,
-			&first_name,
-			&last_name,
-			&address,
-			&phone_number,
-			&createdAt,
-			&updatedAt,
-		)
 
 	if err != nil {
 		return nil, err
 	}
 
-	client := &models.Client{
-			Id:         	id.String,
-			First_name: 	first_name.String,
-			Last_name:  	last_name.String,
-			Address:    	address.String,
-			Phone_number: 	phone_number.String,
-			CreatedAt:  	createdAt.String,
-			UpdatedAt:  	updatedAt.String,
-	 }
-	return client,nil
+	resp := &models.Client{
+		Id:          id.String,
+		FirstName:   firstName.String,
+		LastName:    lastName.String,
+		Address:     address.String,
+		PhoneNumber: phoneNumber.String,
+		CreatedAt:   createdAt.String,
+		UpdatedAt:   updatedAt.String,
+	}
+
+	return resp, err
 }
 
-func (r *ClientRepo)GetList(ctx context.Context, req *models.GetListClientRequest) (*models.GetListClientResponse, error) {
-
+func (r *ClientRepo) GetList(ctx context.Context, req *models.GetListClientRequest) (*models.GetListClientResponse, error) {
 	var (
-		resp   models.GetListClientResponse
-		offset = " OFFSET 0"
-		limit  = " LIMIT 10"
-		search = req.Search
+		offset = "OFFSET 0"
+		limit  = "LIMIT 10"
+		resp   = &models.GetListClientResponse{}
 	)
+
+	if req.Offset > 0 {
+		offset = fmt.Sprintf("OFFSET %d", req.Offset)
+	}
+
+	if req.Limit > 0 {
+		limit = fmt.Sprintf("LIMIT %d", req.Limit)
+	}
 
 	query := `
 		SELECT
@@ -125,110 +130,96 @@ func (r *ClientRepo)GetList(ctx context.Context, req *models.GetListClientReques
 			address,
 			phone_number,
 			created_at,
-			updated_at 
-		FROM Client
-	
+			updated_at
+		FROM client
 	`
-	if search != "" {
-		search = fmt.Sprintf("where first_name like  '%s%s' ", req.Search,"%")
-		query += search
-	}
-
-	if req.Offset > 0 {
-		offset = fmt.Sprintf(" OFFSET %d", req.Offset)
-	}
-
-	if req.Limit > 0 {
-		limit = fmt.Sprintf(" LIMIT %d", req.Limit)
-	}
 
 	query += offset + limit
 
 	rows, err := r.db.Query(ctx, query)
-
 	if err != nil {
-		return &models.GetListClientResponse{}, err
+		return nil, err
 	}
-
-	var (
-		id          	 sql.NullString
-		first_name       sql.NullString
-		last_name        sql.NullString
-		address          sql.NullString
-		phone_number     sql.NullString
-		createdAt   	 sql.NullString
-		updatedAt   	 sql.NullString
-	)
 
 	for rows.Next() {
 
+		var (
+			id          sql.NullString
+			firstName   sql.NullString
+			lastName    sql.NullString
+			address     sql.NullString
+			phoneNumber sql.NullString
+			createdAt   sql.NullString
+			updatedAt   sql.NullString
+		)
 
 		err = rows.Scan(
 			&resp.Count,
 			&id,
-			&first_name,
-			&last_name,
+			&firstName,
+			&lastName,
 			&address,
-			&phone_number,
+			&phoneNumber,
 			&createdAt,
 			&updatedAt,
 		)
 
-		client := models.CreateClient{
-			Id:         id.String,
-			First_name: first_name.String,
-			Last_name:  last_name.String,
-			Address:    address.String,
-			CreatedAt:  createdAt.String,
-			UpdatedAt:  updatedAt.String,
-		}
-		if err != nil {
-			return &models.GetListClientResponse{}, err
-		}
-		
-		resp.Client = append(resp.Client, &client)
-
-
+		resp.Clients = append(resp.Clients, &models.Client{
+			Id:          id.String,
+			FirstName:   firstName.String,
+			LastName:    lastName.String,
+			Address:     address.String,
+			PhoneNumber: phoneNumber.String,
+			CreatedAt:   createdAt.String,
+			UpdatedAt:   updatedAt.String,
+		})
 	}
-	return &resp, nil
+
+	return resp, err
 }
 
+func (r *ClientRepo) Update(ctx context.Context, client *models.UpdateClient) (int64, error) {
 
-func (r *ClientRepo)Update(ctx context.Context, client *models.UpdateClient) error {
-
-	query := `
-		UPDATE 
-			Client 
-		SET 
-			first_name = $2,
-			last_name = $3,
-			address = $4,
-			phone_number = $5,
-			updated_at = now()
-		WHERE id = $1
-	`
-
-	_, err := r.db.Exec(ctx,query,
-		client.Id,
-		client.First_name,
-		client.Last_name,
-		client.Address,
-		client.Phone_number,
+	var (
+		params map[string]interface{}
+		query  string
 	)
 
+	query = `
+		UPDATE
+			client
+		SET
+			first_name = :first_name,
+			last_name = :last_name,
+			address = :address,
+			phone_number = :phone_number,
+			updated_at = now()
+		WHERE id = :id
+	`
+
+	params = map[string]interface{}{
+		"first_name":   client.FirstName,
+		"last_name":    client.LastName,
+		"address":      client.Address,
+		"phone_number": client.PhoneNumber,
+	}
+
+	query, args := helper.ReplaceQueryParams(query, params)
+
+	rowsAffected, err := r.db.Exec(ctx, query, args...)
+	if err != nil {
+		return 0, err
+	}
+
+	return rowsAffected.RowsAffected(), nil
+}
+
+func (r *ClientRepo) Delete(ctx context.Context, req *models.ClientPrimeryKey) error {
+
+	_, err := r.db.Exec(ctx, "delete from client where id = $1", req.Id)
 	if err != nil {
 		return err
 	}
-
-	return nil
-}
-
-func (r *ClientRepo)Delete(ctx context.Context, req *models.ClientPrimeryKey) error {
-
-	_, err := r.db.Exec(ctx,"DELETE FROM Client WHERE id  = $1 ", req.Id)
-		if err != nil {
-			return err
-		}
 
 	return nil
 }

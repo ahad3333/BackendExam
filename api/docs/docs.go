@@ -16,6 +16,241 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/branch": {
+            "get": {
+                "description": "Get List Branch",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Branch"
+                ],
+                "summary": "Get List Branch",
+                "operationId": "get_list_Branch",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "offset",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "GetBranchListBody",
+                        "schema": {
+                            "$ref": "#/definitions/models.GetListBranchResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Argumant",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create Branch",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Branch"
+                ],
+                "summary": "Create Branch",
+                "operationId": "create_Branch",
+                "parameters": [
+                    {
+                        "description": "CreateBranchRequestBody",
+                        "name": "branch",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateBranch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "GetBranchBody",
+                        "schema": {
+                            "$ref": "#/definitions/models.Branch"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Argumant",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/branch/{id}": {
+            "get": {
+                "description": "Get By ID Branch",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Branch"
+                ],
+                "summary": "Get By ID Branch",
+                "operationId": "get_by_id_Branch",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "GetBranchBody",
+                        "schema": {
+                            "$ref": "#/definitions/models.Branch"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Argumant",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update Branch",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Branch"
+                ],
+                "summary": "Update Branch",
+                "operationId": "update_Branch",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "UpdateBranchRequestBody",
+                        "name": "Branch",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateBranchSwag"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "UpdateBranchBody",
+                        "schema": {
+                            "$ref": "#/definitions/models.Branch"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Argumant",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete Branch",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Branch"
+                ],
+                "summary": "Delete Branch",
+                "operationId": "delete_Branch",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "DeleteBranchBody",
+                        "schema": {
+                            "$ref": "#/definitions/models.Empty"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Argumant",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/car": {
             "get": {
                 "description": "Get List Car",
@@ -29,7 +264,7 @@ const docTemplate = `{
                     "Car"
                 ],
                 "summary": "Get List Car",
-                "operationId": "CarPrimeryKey",
+                "operationId": "get_list_car",
                 "parameters": [
                     {
                         "type": "integer",
@@ -41,12 +276,6 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "limit",
                         "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "search",
-                        "name": "search",
                         "in": "query"
                     }
                 ],
@@ -72,7 +301,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "CreateCar",
+                "description": "Create Car",
                 "consumes": [
                     "application/json"
                 ],
@@ -82,16 +311,16 @@ const docTemplate = `{
                 "tags": [
                     "Car"
                 ],
-                "summary": "CreateCar",
-                "operationId": "CreateCar",
+                "summary": "Create Car",
+                "operationId": "create_car",
                 "parameters": [
                     {
                         "description": "CreateCarRequestBody",
-                        "name": "car",
+                        "name": "Car",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateCarSwag"
+                            "$ref": "#/definitions/models.CreateCar"
                         }
                     }
                 ],
@@ -119,7 +348,7 @@ const docTemplate = `{
         },
         "/car/{id}": {
             "get": {
-                "description": "GetByID Car",
+                "description": "Get By ID Car",
                 "consumes": [
                     "application/json"
                 ],
@@ -129,8 +358,8 @@ const docTemplate = `{
                 "tags": [
                     "Car"
                 ],
-                "summary": "GetByID Car",
-                "operationId": "Get_By_IDCar",
+                "summary": "Get By ID Car",
+                "operationId": "get_by_id_car",
                 "parameters": [
                     {
                         "type": "string",
@@ -141,8 +370,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "GetByIDCarBody",
+                    "200": {
+                        "description": "GetCarBody",
                         "schema": {
                             "$ref": "#/definitions/models.Car"
                         }
@@ -173,7 +402,7 @@ const docTemplate = `{
                     "Car"
                 ],
                 "summary": "Update Car",
-                "operationId": "UpdateCar",
+                "operationId": "update_car",
                 "parameters": [
                     {
                         "type": "string",
@@ -184,7 +413,7 @@ const docTemplate = `{
                     },
                     {
                         "description": "UpdateCarRequestBody",
-                        "name": "car",
+                        "name": "Car",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -225,7 +454,7 @@ const docTemplate = `{
                     "Car"
                 ],
                 "summary": "Delete Car",
-                "operationId": "DeleteCar",
+                "operationId": "delete_car",
                 "parameters": [
                     {
                         "type": "string",
@@ -270,7 +499,7 @@ const docTemplate = `{
                     "Client"
                 ],
                 "summary": "Get List Client",
-                "operationId": "ClientPrimeryKey",
+                "operationId": "get_list_client",
                 "parameters": [
                     {
                         "type": "integer",
@@ -283,17 +512,11 @@ const docTemplate = `{
                         "description": "limit",
                         "name": "limit",
                         "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "search",
-                        "name": "search",
-                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "GetClientkListBody",
+                        "description": "GetClientListBody",
                         "schema": {
                             "$ref": "#/definitions/models.GetListClientResponse"
                         }
@@ -313,7 +536,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "CreateClient",
+                "description": "Create Client",
                 "consumes": [
                     "application/json"
                 ],
@@ -323,16 +546,16 @@ const docTemplate = `{
                 "tags": [
                     "Client"
                 ],
-                "summary": "CreateClient",
-                "operationId": "CreateClient",
+                "summary": "Create Client",
+                "operationId": "create_client",
                 "parameters": [
                     {
                         "description": "CreateClientRequestBody",
-                        "name": "client",
+                        "name": "Client",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateClientSwag"
+                            "$ref": "#/definitions/models.CreateClient"
                         }
                     }
                 ],
@@ -360,7 +583,7 @@ const docTemplate = `{
         },
         "/client/{id}": {
             "get": {
-                "description": "GetByID Client",
+                "description": "Get By ID Client",
                 "consumes": [
                     "application/json"
                 ],
@@ -370,8 +593,8 @@ const docTemplate = `{
                 "tags": [
                     "Client"
                 ],
-                "summary": "GetByID Client",
-                "operationId": "Get_By_IDClient",
+                "summary": "Get By ID Client",
+                "operationId": "get_by_id_client",
                 "parameters": [
                     {
                         "type": "string",
@@ -382,8 +605,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "GetByIDClientBody",
+                    "200": {
+                        "description": "GetClientBody",
                         "schema": {
                             "$ref": "#/definitions/models.Client"
                         }
@@ -414,7 +637,7 @@ const docTemplate = `{
                     "Client"
                 ],
                 "summary": "Update Client",
-                "operationId": "UpdateClient",
+                "operationId": "update_client",
                 "parameters": [
                     {
                         "type": "string",
@@ -425,7 +648,7 @@ const docTemplate = `{
                     },
                     {
                         "description": "UpdateClientRequestBody",
-                        "name": "client",
+                        "name": "Client",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -466,7 +689,7 @@ const docTemplate = `{
                     "Client"
                 ],
                 "summary": "Delete Client",
-                "operationId": "DeleteClient",
+                "operationId": "delete_client",
                 "parameters": [
                     {
                         "type": "string",
@@ -481,62 +704,6 @@ const docTemplate = `{
                         "description": "DeleteClientBody",
                         "schema": {
                             "$ref": "#/definitions/models.Empty"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid Argumant",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Server error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/debtor-client": {
-            "get": {
-                "description": "Get List Calc",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "CalcBebt"
-                ],
-                "summary": "Get List Calc",
-                "operationId": "CalcBebtPrimeryKey",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "offset",
-                        "name": "offset",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "limit",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "search",
-                        "name": "search",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "GetBabtListBody",
-                        "schema": {
-                            "$ref": "#/definitions/models.GetListBebt"
                         }
                     },
                     "400": {
@@ -580,12 +747,6 @@ const docTemplate = `{
                         "description": "limit",
                         "name": "limit",
                         "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "search",
-                        "name": "search",
-                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -625,11 +786,11 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "CreateInvestorRequestBody",
-                        "name": "investor",
+                        "name": "Investor",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateInvestorSwag"
+                            "$ref": "#/definitions/models.CreateInvestor"
                         }
                     }
                 ],
@@ -638,62 +799,6 @@ const docTemplate = `{
                         "description": "GetInvestorBody",
                         "schema": {
                             "$ref": "#/definitions/models.Investor"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid Argumant",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Server error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/investor-share": {
-            "get": {
-                "description": "Get List Calc",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "CalcInves"
-                ],
-                "summary": "Get List Calc",
-                "operationId": "CalcInvesPrimeryKey",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "offset",
-                        "name": "offset",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "limit",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "search",
-                        "name": "search",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "GetCalcListBody",
-                        "schema": {
-                            "$ref": "#/definitions/models.GetListInves"
                         }
                     },
                     "400": {
@@ -767,7 +872,7 @@ const docTemplate = `{
                     "Investor"
                 ],
                 "summary": "Update Investor",
-                "operationId": "update_investor",
+                "operationId": "update_Investor",
                 "parameters": [
                     {
                         "type": "string",
@@ -778,7 +883,7 @@ const docTemplate = `{
                     },
                     {
                         "description": "UpdateInvestorRequestBody",
-                        "name": "investor",
+                        "name": "Investor",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -864,7 +969,7 @@ const docTemplate = `{
                     "Order"
                 ],
                 "summary": "Get List Order",
-                "operationId": "OrderPrimeryKey",
+                "operationId": "get_list_order",
                 "parameters": [
                     {
                         "type": "integer",
@@ -901,7 +1006,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "CreateOrder",
+                "description": "Create Order",
                 "consumes": [
                     "application/json"
                 ],
@@ -911,16 +1016,16 @@ const docTemplate = `{
                 "tags": [
                     "Order"
                 ],
-                "summary": "CreateOrder",
-                "operationId": "CreateOrder",
+                "summary": "Create Order",
+                "operationId": "create_order",
                 "parameters": [
                     {
                         "description": "CreateOrderRequestBody",
-                        "name": "order",
+                        "name": "Order",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateOrderSwag"
+                            "$ref": "#/definitions/models.CreateOrder"
                         }
                     }
                 ],
@@ -948,7 +1053,7 @@ const docTemplate = `{
         },
         "/order/{id}": {
             "get": {
-                "description": "GetByID Order",
+                "description": "Get By ID Order",
                 "consumes": [
                     "application/json"
                 ],
@@ -958,8 +1063,8 @@ const docTemplate = `{
                 "tags": [
                     "Order"
                 ],
-                "summary": "GetByID Order",
-                "operationId": "Get_By_IDOrder",
+                "summary": "Get By ID Order",
+                "operationId": "get_by_id_order",
                 "parameters": [
                     {
                         "type": "string",
@@ -970,8 +1075,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "GetByIDCarBody",
+                    "200": {
+                        "description": "GetOrderBody",
                         "schema": {
                             "$ref": "#/definitions/models.Order"
                         }
@@ -1002,17 +1107,18 @@ const docTemplate = `{
                     "Order"
                 ],
                 "summary": "Update Order",
-                "operationId": "UpdateOrder",
+                "operationId": "update_order",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "id",
                         "name": "id",
-                        "in": "path"
+                        "in": "path",
+                        "required": true
                     },
                     {
                         "description": "UpdateOrderRequestBody",
-                        "name": "order",
+                        "name": "Order",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -1022,7 +1128,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "202": {
-                        "description": "UpdateCarBody",
+                        "description": "UpdateOrderBody",
                         "schema": {
                             "$ref": "#/definitions/models.Order"
                         }
@@ -1053,7 +1159,7 @@ const docTemplate = `{
                     "Order"
                 ],
                 "summary": "Delete Order",
-                "operationId": "DeleteOrder",
+                "operationId": "delete_order",
                 "parameters": [
                     {
                         "type": "string",
@@ -1083,11 +1189,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/return/{id}": {
-            "put": {
-                "description": "ReturnCar Order",
+            },
+            "patch": {
+                "description": "Update Patch Order",
                 "consumes": [
                     "application/json"
                 ],
@@ -1095,10 +1199,10 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "ReturnCar"
+                    "Order"
                 ],
-                "summary": "ReturnCar Order",
-                "operationId": "ReturnCar",
+                "summary": "Update Patch Order",
+                "operationId": "update_patch_order",
                 "parameters": [
                     {
                         "type": "string",
@@ -1108,20 +1212,128 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "UpdateOrderRequestBody",
-                        "name": "order",
+                        "description": "UpdatePatchRequestBody",
+                        "name": "Order",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.ReturnCar"
+                            "$ref": "#/definitions/models.UpdatePatch"
                         }
                     }
                 ],
                 "responses": {
                     "202": {
-                        "description": "UpdateCarBody",
+                        "description": "OrderBody",
                         "schema": {
                             "$ref": "#/definitions/models.Order"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Argumant",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/report/company-share": {
+            "get": {
+                "description": "Branch share",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Report"
+                ],
+                "summary": "Branch share",
+                "operationId": "Branch Share",
+                "responses": {
+                    "201": {
+                        "description": "GetListBranchShareResponseBody",
+                        "schema": {
+                            "$ref": "#/definitions/models.GetListBranchShareResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Argumant",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/report/debtors": {
+            "get": {
+                "description": "debtors",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Report"
+                ],
+                "summary": "debtors",
+                "operationId": "debtors",
+                "responses": {
+                    "201": {
+                        "description": "GetListDebtorResponseBody",
+                        "schema": {
+                            "$ref": "#/definitions/models.GetListDebtorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Argumant",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/report/investor-share": {
+            "get": {
+                "description": "investor share",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Report"
+                ],
+                "summary": "investor share",
+                "operationId": "Intestor Share",
+                "responses": {
+                    "201": {
+                        "description": "GetListInvestorShareResponseBody",
+                        "schema": {
+                            "$ref": "#/definitions/models.GetListInvestorShareResponse"
                         }
                     },
                     "400": {
@@ -1141,13 +1353,13 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.Bebtors": {
+        "models.Branch": {
             "type": "object",
             "properties": {
-                "bebt": {
-                    "type": "number"
-                },
                 "created_at": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 },
                 "name": {
@@ -1158,14 +1370,34 @@ const docTemplate = `{
                 }
             }
         },
+        "models.BranchShare": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                }
+            }
+        },
         "models.Car": {
             "type": "object",
             "properties": {
-                "created_at": {
+                "branch_id": {
+                    "type": "string"
+                },
+                "branch_percentage": {
+                    "type": "number"
+                },
+                "crated_at": {
                     "type": "string"
                 },
                 "daily_limit": {
-                    "type": "number"
+                    "type": "integer"
                 },
                 "id": {
                     "type": "string"
@@ -1177,13 +1409,13 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "km": {
-                    "type": "number"
+                    "type": "integer"
                 },
                 "model": {
                     "type": "string"
                 },
                 "over_limit": {
-                    "type": "number"
+                    "type": "integer"
                 },
                 "price": {
                     "type": "number"
@@ -1195,6 +1427,20 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CarOrder": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "state_number": {
                     "type": "string"
                 }
             }
@@ -1225,19 +1471,56 @@ const docTemplate = `{
                 }
             }
         },
+        "models.CreateBranch": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CreateCar": {
+            "type": "object",
+            "properties": {
+                "branch_id": {
+                    "type": "string"
+                },
+                "branch_percentage": {
+                    "type": "number"
+                },
+                "daily_limit": {
+                    "type": "integer"
+                },
+                "investor_id": {
+                    "type": "string"
+                },
+                "investor_percentage": {
+                    "type": "number"
+                },
+                "km": {
+                    "type": "integer"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "over_limit": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "state_number": {
+                    "type": "string"
+                }
+            }
+        },
         "models.CreateClient": {
             "type": "object",
             "properties": {
                 "address": {
                     "type": "string"
                 },
-                "created_at": {
-                    "type": "string"
-                },
                 "first_name": {
-                    "type": "string"
-                },
-                "id": {
                     "type": "string"
                 },
                 "last_name": {
@@ -1245,30 +1528,18 @@ const docTemplate = `{
                 },
                 "phone_number": {
                     "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
                 }
             }
         },
         "models.CreateInvestor": {
             "type": "object",
             "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
                 "name": {
-                    "type": "string"
-                },
-                "updated_at": {
                     "type": "string"
                 }
             }
         },
-        "models.CreateOrderSwag": {
+        "models.CreateOrder": {
             "type": "object",
             "properties": {
                 "car_id": {
@@ -1278,6 +1549,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "day_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Debtor": {
+            "type": "object",
+            "properties": {
+                "full_name": {
+                    "type": "string"
+                },
+                "price": {
                     "type": "number"
                 }
             }
@@ -1285,24 +1567,38 @@ const docTemplate = `{
         "models.Empty": {
             "type": "object"
         },
-        "models.GetListBebt": {
+        "models.GetListBranchResponse": {
             "type": "object",
             "properties": {
-                "count": {
-                    "type": "integer"
-                },
-                "order": {
+                "branch": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Bebtors"
+                        "$ref": "#/definitions/models.Branch"
                     }
+                },
+                "count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.GetListBranchShareResponse": {
+            "type": "object",
+            "properties": {
+                "branchs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.BranchShare"
+                    }
+                },
+                "count": {
+                    "type": "integer"
                 }
             }
         },
         "models.GetListCarResponse": {
             "type": "object",
             "properties": {
-                "Cars": {
+                "cars": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.Car"
@@ -1316,10 +1612,10 @@ const docTemplate = `{
         "models.GetListClientResponse": {
             "type": "object",
             "properties": {
-                "client": {
+                "clients": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.CreateClient"
+                        "$ref": "#/definitions/models.Client"
                     }
                 },
                 "count": {
@@ -1327,16 +1623,16 @@ const docTemplate = `{
                 }
             }
         },
-        "models.GetListInves": {
+        "models.GetListDebtorResponse": {
             "type": "object",
             "properties": {
                 "count": {
                     "type": "integer"
                 },
-                "order": {
+                "debtors": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.InvestorBenefit"
+                        "$ref": "#/definitions/models.Debtor"
                     }
                 }
             }
@@ -1347,10 +1643,24 @@ const docTemplate = `{
                 "count": {
                     "type": "integer"
                 },
-                "investor": {
+                "investors": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.CreateInvestor"
+                        "$ref": "#/definitions/models.Investor"
+                    }
+                }
+            }
+        },
+        "models.GetListInvestorShareResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "investors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.InvestorShare"
                     }
                 }
             }
@@ -1361,7 +1671,7 @@ const docTemplate = `{
                 "count": {
                     "type": "integer"
                 },
-                "order": {
+                "orders": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.Order"
@@ -1386,27 +1696,30 @@ const docTemplate = `{
                 }
             }
         },
-        "models.InvestorBenefit": {
+        "models.InvestorShare": {
             "type": "object",
             "properties": {
-                "created_at": {
+                "full_name": {
                     "type": "string"
                 },
-                "name": {
+                "id": {
                     "type": "string"
                 },
                 "price": {
                     "type": "number"
-                },
-                "updated_at": {
-                    "type": "string"
                 }
             }
         },
         "models.Order": {
             "type": "object",
             "properties": {
+                "car": {
+                    "$ref": "#/definitions/models.CarOrder"
+                },
                 "car_id": {
+                    "type": "string"
+                },
+                "client_full_name": {
                     "type": "string"
                 },
                 "client_id": {
@@ -1416,10 +1729,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "day_count": {
-                    "type": "number"
+                    "type": "integer"
                 },
                 "give_km": {
-                    "type": "number"
+                    "type": "integer"
                 },
                 "id": {
                     "type": "string"
@@ -1427,8 +1740,8 @@ const docTemplate = `{
                 "paid_price": {
                     "type": "number"
                 },
-                "receive_km": {
-                    "type": "number"
+                "recieve_km": {
+                    "type": "integer"
                 },
                 "status": {
                     "type": "string"
@@ -1441,42 +1754,48 @@ const docTemplate = `{
                 }
             }
         },
-        "models.ReturnCar": {
+        "models.UpdateBranchSwag": {
             "type": "object",
             "properties": {
-                "car_id": {
+                "name": {
                     "type": "string"
-                },
-                "client_id": {
-                    "type": "string"
-                },
-                "receive_km": {
-                    "type": "number"
                 }
             }
         },
         "models.UpdateCarSwag": {
             "type": "object",
             "properties": {
-                "daily_limit": {
+                "branch_id": {
+                    "type": "string"
+                },
+                "branch_percentage": {
                     "type": "number"
+                },
+                "daily_limit": {
+                    "type": "integer"
                 },
                 "investor_id": {
                     "type": "string"
                 },
-                "km": {
+                "investor_percentage": {
                     "type": "number"
+                },
+                "km": {
+                    "type": "integer"
                 },
                 "model": {
                     "type": "string"
                 },
                 "over_limit": {
-                    "type": "number"
+                    "type": "integer"
                 },
                 "price": {
                     "type": "number"
                 },
                 "state_number": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }
@@ -1515,8 +1834,35 @@ const docTemplate = `{
                 "client_id": {
                     "type": "string"
                 },
+                "day_count": {
+                    "type": "integer"
+                },
+                "give_km": {
+                    "type": "integer"
+                },
                 "paid_price": {
                     "type": "number"
+                },
+                "recieve_km": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "total_price": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.UpdatePatch": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "id": {
+                    "type": "string"
                 }
             }
         }

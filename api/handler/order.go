@@ -7,20 +7,20 @@ import (
 	"net/http"
 	"strconv"
 
-	"add/models"
+	"app/models"
 
 	"github.com/gin-gonic/gin"
 )
 
 // CreateOrder godoc
-// @ID CreateOrder
+// @ID create_order
 // @Router /order [POST]
-// @Summary CreateOrder
-// @Description CreateOrder
+// @Summary Create Order
+// @Description Create Order
 // @Tags Order
 // @Accept json
 // @Produce json
-// @Param order body models.CreateOrderSwag true "CreateOrderRequestBody"
+// @Param Order body models.CreateOrder true "CreateOrderRequestBody"
 // @Success 201 {object} models.Order "GetOrderBody"
 // @Response 400 {object} string "Invalid Argumant"
 // @Failure 500 {object} string "Server error"
@@ -42,49 +42,39 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 		return
 	}
 
-	resp, err := h.storage.Order().GetByID(context.Background(), &models.OrderPrimeryKey{
-		Id: id,
-	})
-	if err != nil {
-		log.Println("error whiling get by id Order", err.Error())
-		c.JSON(http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	c.JSON(http.StatusCreated, resp)
+	c.JSON(http.StatusCreated, id)
 }
 
 // GetByIDOrder godoc
-// @ID Get_By_IDOrder
+// @ID get_by_id_order
 // @Router /order/{id} [GET]
-// @Summary GetByID Order
-// @Description GetByID Order
+// @Summary Get By ID Order
+// @Description Get By ID Order
 // @Tags Order
 // @Accept json
 // @Produce json
 // @Param id path string true "id"
-// @Success 201 {object} models.Order "GetByIDCarBody"
+// @Success 200 {object} models.Order "GetOrderBody"
 // @Response 400 {object} string "Invalid Argumant"
 // @Failure 500 {object} string "Server error"
-func (h *Handler) GetByIDOrder(c *gin.Context) {
+func (h *Handler) GetByIdOrder(c *gin.Context) {
 
 	id := c.Param("id")
 
 	res, err := h.storage.Order().GetByID(context.Background(), &models.OrderPrimeryKey{
 		Id: id,
 	})
-
 	if err != nil {
 		log.Println("error whiling get by id Order:", err.Error())
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusCreated, res)
+	c.JSON(http.StatusOK, res)
 }
 
 // GetListOrder godoc
-// @ID OrderPrimeryKey
+// @ID get_list_order
 // @Router /order [GET]
 // @Summary Get List Order
 // @Description Get List Order
@@ -123,13 +113,13 @@ func (h *Handler) GetListOrder(c *gin.Context) {
 		}
 	}
 
-	res, err := h.storage.Order().GetList(context.Background(),&models.GetListOrderRequest{
+	res, err := h.storage.Order().GetList(context.Background(), &models.GetListOrderRequest{
 		Offset: int64(offset),
 		Limit:  int64(limit),
 	})
 
 	if err != nil {
-		log.Println("error whiling get list Order:", err.Error())
+		log.Println("error whiling get list order:", err.Error())
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -138,26 +128,25 @@ func (h *Handler) GetListOrder(c *gin.Context) {
 }
 
 // UpdateOrder godoc
-// @ID UpdateOrder
+// @ID update_order
 // @Router /order/{id} [PUT]
 // @Summary Update Order
 // @Description Update Order
 // @Tags Order
 // @Accept json
 // @Produce json
-// @Param id path string fl "id"
-// @Param order body models.UpdateOrderSwag true "UpdateOrderRequestBody"
-// @Success 202 {object} models.Order "UpdateCarBody"
+// @Param id path string true "id"
+// @Param Order body models.UpdateOrderSwag true "UpdateOrderRequestBody"
+// @Success 202 {object} models.Order "UpdateOrderBody"
 // @Response 400 {object} string "Invalid Argumant"
 // @Failure 500 {object} string "Server error"
 func (h *Handler) UpdateOrder(c *gin.Context) {
 
 	var (
 		order models.UpdateOrder
-		// order1 models.InvestorBenefit
-
 	)
 
+	order.Id = c.Param("id")
 
 	err := c.ShouldBindJSON(&order)
 	if err != nil {
@@ -165,42 +154,77 @@ func (h *Handler) UpdateOrder(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
-	order.Id = c.Param("id")
-	 err = h.storage.Order().Update(context.Background(),&models.Order{
-	 	Id:          order.Id,
-	 	Car_id:      order.Car_id,
-	 	Client_id:   order.Client_id,
-	 	Total_price: order.Total_price,
-	 	Paid_price:  order.Paid_price,
-	 	Day_count:   order.Day_count,
-	 	Give_km:     order.Give_km,
-	 	Receive_km:  order.Receive_km,
-	 	UpdatedAt:   order.UpdatedAt,
-	 })
-	//   err = h.storage.Order().Return(context.Background(), &order1)
+
+	err = h.storage.Order().Update(context.Background(), &order)
+
 	if err != nil {
-		log.Println("error whiling create order:", err.Error())
-		c.JSON(http.StatusInternalServerError, err.Error())
-		return
-	}
-	if err != nil {
-		log.Printf("error whiling update Order: %v", err)
+		log.Printf("error whiling update: %v", err)
 		c.JSON(http.StatusInternalServerError, errors.New("error whiling update").Error())
 		return
 	}
 
-
-	resp, err := h.storage.Order().GetByID(context.Background(),&models.OrderPrimeryKey{Id: order.Id})
+	resp, err := h.storage.Order().GetByID(context.Background(), &models.OrderPrimeryKey{
+		Id: order.Id,
+	})
 	if err != nil {
-		log.Printf("error whiling get by id Order: %v\n", err)
+		log.Printf("error whiling get by id: %v\n", err)
 		c.JSON(http.StatusInternalServerError, errors.New("error whiling get by id").Error())
 		return
 	}
+
+	c.JSON(http.StatusAccepted, resp)
+}
+
+// UpdatePatchOrder godoc
+// @ID update_patch_order
+// @Router /order/{id} [PATCH]
+// @Summary Update Patch Order
+// @Description Update Patch Order
+// @Tags Order
+// @Accept json
+// @Produce json
+// @Param id path string true "id"
+// @Param Order body models.UpdatePatch true "UpdatePatchRequestBody"
+// @Success 202 {object} models.Order "OrderBody"
+// @Response 400 {object} string "Invalid Argumant"
+// @Failure 500 {object} string "Server error"
+func (h *Handler) UpdatePatchOrder(c *gin.Context) {
+
+	var (
+		order models.UpdatePatch
+	)
+
+	order.Id = c.Param("id")
+
+	err := c.ShouldBindJSON(&order)
+	if err != nil {
+		log.Printf("error whiling update: %v\n", err)
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = h.storage.Order().UpdatePatch(context.Background(), &order)
+
+	if err != nil {
+		log.Printf("error whiling update: %v", err)
+		c.JSON(http.StatusInternalServerError, errors.New("error whiling update").Error())
+		return
+	}
+
+	resp, err := h.storage.Order().GetByID(context.Background(), &models.OrderPrimeryKey{
+		Id: order.Id,
+	})
+	if err != nil {
+		log.Printf("error whiling get by id: %v\n", err)
+		c.JSON(http.StatusInternalServerError, errors.New("error whiling get by id").Error())
+		return
+	}
+
 	c.JSON(http.StatusAccepted, resp)
 }
 
 // DeleteOrder godoc
-// @ID DeleteOrder
+// @ID delete_order
 // @Router /order/{id} [DELETE]
 // @Summary Delete Order
 // @Description Delete Order
@@ -214,66 +238,11 @@ func (h *Handler) UpdateOrder(c *gin.Context) {
 func (h *Handler) DeleteOrder(c *gin.Context) {
 	id := c.Param("id")
 
-	err := h.storage.Order().Delete(context.Background(),&models.OrderPrimeryKey{Id: id})
+	err := h.storage.Order().Delete(context.Background(), &models.OrderPrimeryKey{Id: id})
 	if err != nil {
-		log.Println("error whiling delete  Order:", err.Error())
+		log.Println("error whiling delete  order:", err.Error())
 		c.JSON(http.StatusNoContent, err.Error())
 		return
 	}
-	c.JSON(http.StatusAccepted, "delete Order")
-}
-
-// ReturnCar godoc
-// @ID ReturnCar
-// @Router /return/{id} [PUT]
-// @Summary ReturnCar Order
-// @Description ReturnCar Order
-// @Tags ReturnCar
-// @Accept json
-// @Produce json
-// @Param id path string true "id"
-// @Param order body models.ReturnCar true "UpdateOrderRequestBody"
-// @Success 202 {object} models.Order "UpdateCarBody"
-// @Response 400 {object} string "Invalid Argumant"
-// @Failure 500 {object} string "Server error"
-func (h *Handler) UpdateReturn(c *gin.Context) {
-
-	var (
-		order models.UpdateOrder
-	)
-
-
-	err := c.ShouldBindJSON(&order)
-	if err != nil {
-		log.Printf("error whiling update: %v\n", err)
-		c.JSON(http.StatusBadRequest, errors.New("error whiling update").Error())
-		return
-	}
-	order.Id = c.Param("id")
-	 
-	 err = h.storage.Order().Return(context.Background(),&models.Order{
-		Id: order.Id,
-		Car_id: order.Car_id,
-		Client_id: order.Client_id,
-		Receive_km: order.Receive_km,
-	 })
-	if err != nil {
-		log.Println("error whiling create order:", err.Error())
-		c.JSON(http.StatusInternalServerError, err.Error())
-		return
-	}
-	if err != nil {
-		log.Printf("error whiling update ReturnCar: %v", err)
-		c.JSON(http.StatusInternalServerError, errors.New("error whiling update").Error())
-		return
-	}
-
-
-	resp, err := h.storage.Order().GetByID(context.Background(),&models.OrderPrimeryKey{Id: order.Id})
-	if err != nil {
-		log.Printf("error whiling get by id ReturnCar: %v\n", err)
-		c.JSON(http.StatusInternalServerError, errors.New("error whiling get by id").Error())
-		return
-	}
-	c.JSON(http.StatusAccepted, resp)
+	c.JSON(http.StatusCreated, "Order deleted")
 }

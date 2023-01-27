@@ -1,37 +1,35 @@
 package models
 
-type InvestorPrimeryKey struct {
+type BranchPrimeryKey struct {
 	Id string `json:"id"`
 }
 
-type CreateInvestor struct {
+type CreateBranch struct {
 	Name string `json:"name"`
 }
 
-type Investor struct {
+type Branch struct {
 	Id        string `json:"id"`
 	Name      string `json:"name"`
 	CreatedAt string `json:"created_at"`
 	UpdatedAt string `json:"updated_at"`
 }
 
-type UpdateInvestor struct {
+type UpdateBranch struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`
 }
 
-type UpdateInvestorSwag struct {
+type UpdateBranchSwag struct {
 	Name string `json:"name"`
 }
 
-type GetListInvestorRequest struct {
+type GetListBranchRequest struct {
 	Offset int64 `json:"offset"`
 	Limit  int64 `json:"limit"`
 }
 
-type GetListInvestorResponse struct {
-	Count     int64       `json:"count"`
-	Investors []*Investor `json:"investors"`
+type GetListBranchResponse struct {
+	Count     int64     `json:"count"`
+	Branchs []*Branch 	`json:"branch"`
 }
-
-type Empty struct{}

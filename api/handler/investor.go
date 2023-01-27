@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"add/models"
+	"app/models"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,7 +20,7 @@ import (
 // @Tags Investor
 // @Accept json
 // @Produce json
-// @Param investor body models.UpdateInvestorSwag true "CreateInvestorRequestBody"
+// @Param Investor body models.CreateInvestor true "CreateInvestorRequestBody"
 // @Success 201 {object} models.Investor "GetInvestorBody"
 // @Response 400 {object} string "Invalid Argumant"
 // @Failure 500 {object} string "Server error"
@@ -37,7 +37,7 @@ func (h *Handler) CreateInvestor(c *gin.Context) {
 
 	id, err := h.storage.Investor().Insert(context.Background(), &investor)
 	if err != nil {
-		log.Println("error whiling create Investor:", err.Error())
+		log.Println("error whiling create investor:", err.Error())
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -46,7 +46,7 @@ func (h *Handler) CreateInvestor(c *gin.Context) {
 		Id: id,
 	})
 	if err != nil {
-		log.Println("error whiling get by id Investor:", err.Error())
+		log.Println("error whiling get by id investor:", err.Error())
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -74,7 +74,7 @@ func (h *Handler) GetByIdInvestor(c *gin.Context) {
 		Id: id,
 	})
 	if err != nil {
-		log.Println("error whiling get by id Investor:", err.Error())
+		log.Println("error whiling get by id investor:", err.Error())
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -92,7 +92,6 @@ func (h *Handler) GetByIdInvestor(c *gin.Context) {
 // @Produce json
 // @Param offset query int false "offset"
 // @Param limit query int false "limit"
-// @Param search query string false "search"
 // @Success 200 {object} models.GetListInvestorResponse "GetInvestorListBody"
 // @Response 400 {object} string "Invalid Argumant"
 // @Failure 500 {object} string "Server error"
@@ -103,7 +102,6 @@ func (h *Handler) GetListInvestor(c *gin.Context) {
 		limit     int
 		offsetStr = c.Query("offset")
 		limitStr  = c.Query("limit")
-		search    = c.Query("search")
 	)
 
 	if offsetStr != "" {
@@ -127,11 +125,10 @@ func (h *Handler) GetListInvestor(c *gin.Context) {
 	res, err := h.storage.Investor().GetList(context.Background(), &models.GetListInvestorRequest{
 		Offset: int64(offset),
 		Limit:  int64(limit),
-		Search: search,
 	})
 
 	if err != nil {
-		log.Println("error whiling get list Investor:", err.Error())
+		log.Println("error whiling get list investor:", err.Error())
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -140,7 +137,7 @@ func (h *Handler) GetListInvestor(c *gin.Context) {
 }
 
 // UpdateInvestor godoc
-// @ID update_investor
+// @ID update_Investor
 // @Router /investor/{id} [PUT]
 // @Summary Update Investor
 // @Description Update Investor
@@ -148,42 +145,41 @@ func (h *Handler) GetListInvestor(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "id"
-// @Param investor body models.UpdateInvestorSwag true "UpdateInvestorRequestBody"
+// @Param Investor body models.UpdateInvestorSwag true "UpdateInvestorRequestBody"
 // @Success 202 {object} models.Investor "UpdateInvestorBody"
 // @Response 400 {object} string "Invalid Argumant"
 // @Failure 500 {object} string "Server error"
 func (h *Handler) UpdateInvestor(c *gin.Context) {
 
 	var (
-		investor models.UpdateInvestor
+		Investor models.UpdateInvestor
 	)
 
-	id := c.Param("id")
+	Investor.Id = c.Param("id")
 
-	err := c.ShouldBindJSON(&investor)
+	err := c.ShouldBindJSON(&Investor)
 	if err != nil {
 		log.Printf("error whiling update: %v\n", err)
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	 err = h.storage.Investor().Update(context.Background(),&models.UpdateInvestor{
-		Id: id,
-		Name: investor.Name,
+	err = h.storage.Investor().Update(context.Background(), &models.UpdateInvestor{
+		Id:   Investor.Id,
+		Name: Investor.Name,
 	})
+
 	if err != nil {
-		log.Printf("error whiling update Investor: %v", err)
-		c.JSON(http.StatusInternalServerError, errors.New("error whiling update Investor").Error())
+		log.Printf("error whiling update: %v", err)
+		c.JSON(http.StatusInternalServerError, errors.New("error whiling update").Error())
 		return
 	}
 
-	
-
-	resp, err := h.storage.Investor().GetByID(context.Background(),&models.InvestorPrimeryKey{
-		Id: id,
+	resp, err := h.storage.Investor().GetByID(context.Background(), &models.InvestorPrimeryKey{
+		Id: Investor.Id,
 	})
 	if err != nil {
-		log.Printf("error whiling get by id Investor: %v\n", err)
+		log.Printf("error whiling get by id: %v\n", err)
 		c.JSON(http.StatusInternalServerError, errors.New("error whiling get by id").Error())
 		return
 	}
@@ -204,16 +200,13 @@ func (h *Handler) UpdateInvestor(c *gin.Context) {
 // @Response 400 {object} string "Invalid Argumant"
 // @Failure 500 {object} string "Server error"
 func (h *Handler) DeleteInvestor(c *gin.Context) {
-
 	id := c.Param("id")
-	
 
-	err := h.storage.Investor().Delete(context.Background(),&models.InvestorPrimeryKey{Id: id})
+	err := h.storage.Investor().Delete(context.Background(), &models.InvestorPrimeryKey{Id: id})
 	if err != nil {
-		log.Println("error whiling delete  Investor:", err.Error())
+		log.Println("error whiling delete  investor:", err.Error())
 		c.JSON(http.StatusNoContent, err.Error())
 		return
 	}
-	
-	c.JSON(http.StatusNoContent, "Deletet Investor")
+	c.JSON(http.StatusCreated, "investor deleted")
 }

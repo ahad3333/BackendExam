@@ -2,25 +2,26 @@ package handler
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"log"
 	"net/http"
 	"strconv"
 
-	"add/models"
+	"app/models"
 
 	"github.com/gin-gonic/gin"
 )
 
 // CreateClient godoc
-// @ID CreateClient
+// @ID create_client
 // @Router /client [POST]
-// @Summary CreateClient
-// @Description CreateClient
+// @Summary Create Client
+// @Description Create Client
 // @Tags Client
 // @Accept json
 // @Produce json
-// @Param client body models.UpdateClientSwag true "CreateClientRequestBody"
+// @Param Client body models.CreateClient true "CreateClientRequestBody"
 // @Success 201 {object} models.Client "GetClientBody"
 // @Response 400 {object} string "Invalid Argumant"
 // @Failure 500 {object} string "Server error"
@@ -37,45 +38,16 @@ func (h *Handler) CreateClient(c *gin.Context) {
 
 	id, err := h.storage.Client().Insert(context.Background(), &client)
 	if err != nil {
-		log.Println("error whiling create Client:", err.Error())
+		log.Println("error whiling create client:", err.Error())
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	resp, err := h.storage.Client().GetByID(context.Background(), &models.ClientPrimeryKey{
-		Id: id,
-	})
-	if err != nil {
-		log.Println("error whiling get by id Client in CreatClient:", err.Error())
-		c.JSON(http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	c.JSON(http.StatusCreated, resp)
-}
-
-// GetByIDClient godoc
-// @ID Get_By_IDClient
-// @Router /client/{id} [GET]
-// @Summary GetByID Client
-// @Description GetByID Client
-// @Tags Client
-// @Accept json
-// @Produce json
-// @Param id path string true "id"
-// @Success 201 {object} models.Client "GetByIDClientBody"
-// @Response 400 {object} string "Invalid Argumant"
-// @Failure 500 {object} string "Server error"
-func (h *Handler) GetByIDClient(c *gin.Context) {
-
-	id := c.Param("id")
 
 	res, err := h.storage.Client().GetByID(context.Background(), &models.ClientPrimeryKey{
 		Id: id,
 	})
-
 	if err != nil {
-		log.Println("error whiling get by id Client:", err.Error())
+		log.Println("error whiling get by id client:", err.Error())
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -83,8 +55,36 @@ func (h *Handler) GetByIDClient(c *gin.Context) {
 	c.JSON(http.StatusCreated, res)
 }
 
+// GetByIDClient godoc
+// @ID get_by_id_client
+// @Router /client/{id} [GET]
+// @Summary Get By ID Client
+// @Description Get By ID Client
+// @Tags Client
+// @Accept json
+// @Produce json
+// @Param id path string true "id"
+// @Success 200 {object} models.Client "GetClientBody"
+// @Response 400 {object} string "Invalid Argumant"
+// @Failure 500 {object} string "Server error"
+func (h *Handler) GetByIdClient(c *gin.Context) {
+
+	id := c.Param("id")
+
+	res, err := h.storage.Client().GetByID(context.Background(), &models.ClientPrimeryKey{
+		Id: id,
+	})
+	if err != nil {
+		log.Println("error whiling get by id Client:", err.Error())
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
 // GetListClient godoc
-// @ID ClientPrimeryKey
+// @ID get_list_client
 // @Router /client [GET]
 // @Summary Get List Client
 // @Description Get List Client
@@ -93,8 +93,7 @@ func (h *Handler) GetByIDClient(c *gin.Context) {
 // @Produce json
 // @Param offset query int false "offset"
 // @Param limit query int false "limit"
-// @Param search query string false "search"
-// @Success 200 {object} models.GetListClientResponse "GetClientkListBody"
+// @Success 200 {object} models.GetListClientResponse "GetClientListBody"
 // @Response 400 {object} string "Invalid Argumant"
 // @Failure 500 {object} string "Server error"
 func (h *Handler) GetListClient(c *gin.Context) {
@@ -104,7 +103,6 @@ func (h *Handler) GetListClient(c *gin.Context) {
 		limit     int
 		offsetStr = c.Query("offset")
 		limitStr  = c.Query("limit")
-		search    = c.Query("search")
 	)
 
 	if offsetStr != "" {
@@ -125,14 +123,13 @@ func (h *Handler) GetListClient(c *gin.Context) {
 		}
 	}
 
-	res, err := h.storage.Client().GetList(context.Background(),&models.GetListClientRequest{
+	res, err := h.storage.Client().GetList(context.Background(), &models.GetListClientRequest{
 		Offset: int64(offset),
 		Limit:  int64(limit),
-		Search: search,
 	})
 
 	if err != nil {
-		log.Println("error whiling get list Client:", err.Error())
+		log.Println("error whiling get list client:", err.Error())
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -141,7 +138,7 @@ func (h *Handler) GetListClient(c *gin.Context) {
 }
 
 // UpdateClient godoc
-// @ID UpdateClient
+// @ID update_client
 // @Router /client/{id} [PUT]
 // @Summary Update Client
 // @Description Update Client
@@ -149,7 +146,7 @@ func (h *Handler) GetListClient(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "id"
-// @Param client body models.UpdateClientSwag true "UpdateClientRequestBody"
+// @Param Client body models.UpdateClientSwag true "UpdateClientRequestBody"
 // @Success 202 {object} models.Client "UpdateClientBody"
 // @Response 400 {object} string "Invalid Argumant"
 // @Failure 500 {object} string "Server error"
@@ -159,6 +156,7 @@ func (h *Handler) UpdateClient(c *gin.Context) {
 		client models.UpdateClient
 	)
 
+	client.Id = c.Param("id")
 
 	err := c.ShouldBindJSON(&client)
 	if err != nil {
@@ -166,32 +164,35 @@ func (h *Handler) UpdateClient(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
-	client.Id = c.Param("id")
-	 err = h.storage.Client().Update(context.Background(),&models.UpdateClient{
-		Id: client.Id,
-		First_name: client.First_name,
-		Last_name: client.Last_name,
-		Address: client.Address,
-		Phone_number: client.Phone_number,
-	})
+
+	rowsAffected, err := h.storage.Client().Update(context.Background(), &client)
+
 	if err != nil {
-		log.Printf("error whiling update Client: %v", err)
+		log.Printf("error whiling update: %v", err)
 		c.JSON(http.StatusInternalServerError, errors.New("error whiling update").Error())
 		return
 	}
 
+	if rowsAffected <= 0 {
+		log.Printf("error whiling update: %v", sql.ErrNoRows)
+		c.JSON(http.StatusInternalServerError, sql.ErrNoRows.Error())
+		return
+	}
 
-	resp, err := h.storage.Client().GetByID(context.Background(),&models.ClientPrimeryKey{Id: client.Id})
+	resp, err := h.storage.Client().GetByID(context.Background(), &models.ClientPrimeryKey{
+		Id: client.Id,
+	})
 	if err != nil {
-		log.Printf("error whiling get by id Up: %v\n", err)
+		log.Printf("error whiling get by id: %v\n", err)
 		c.JSON(http.StatusInternalServerError, errors.New("error whiling get by id").Error())
 		return
 	}
+
 	c.JSON(http.StatusAccepted, resp)
 }
 
 // DeleteClient godoc
-// @ID DeleteClient
+// @ID delete_client
 // @Router /client/{id} [DELETE]
 // @Summary Delete Client
 // @Description Delete Client
@@ -205,11 +206,11 @@ func (h *Handler) UpdateClient(c *gin.Context) {
 func (h *Handler) DeleteClient(c *gin.Context) {
 	id := c.Param("id")
 
-	err := h.storage.Client().Delete(context.Background(),&models.ClientPrimeryKey{Id: id})
+	err := h.storage.Client().Delete(context.Background(), &models.ClientPrimeryKey{Id: id})
 	if err != nil {
-		log.Println("error whiling delete  Client:", err.Error())
+		log.Println("error whiling delete  client:", err.Error())
 		c.JSON(http.StatusNoContent, err.Error())
 		return
 	}
-	c.JSON(http.StatusAccepted, "delete Client")
+	c.JSON(http.StatusCreated, "Client deleted")
 }
