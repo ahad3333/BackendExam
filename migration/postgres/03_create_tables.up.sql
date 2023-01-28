@@ -10,5 +10,7 @@ CREATE TABLE branch (
 ALTER TABLE car
    ADD branch_id UUID NOT NULL REFERENCES  branch(id);
 
-ALTER TABLE car
-   ADD  branch_percentage NUMERIC NOT NULL;
+
+ALTER TABLE "order"
+   ADD branch_id UUID NOT NULL REFERENCES  branch(id);
+

@@ -27,6 +27,8 @@ type UpdateBranchSwag struct {
 type GetListBranchRequest struct {
 	Offset int64 `json:"offset"`
 	Limit  int64 `json:"limit"`
+	Search string `json:"search"`
+
 }
 
 type GetListBranchResponse struct {

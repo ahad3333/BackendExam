@@ -24,33 +24,26 @@ func NewOrderRepo(db *pgxpool.Pool) *OrderRepo {
 	}
 }
 
-func (r *OrderRepo) Insert(ctx context.Context, order *models.CreateOrder) (string, error) {
+func (r *OrderRepo) Insert(ctx context.Context, req *models.CreateOrder) (string, error) {
 
 	var (
 		id = uuid.New().String()
 	)
 
 	query := `
-		INSERT INTO "order" (
-			id,
-			car_id,
-			client_id,
-			total_price,
-			day_count,
-			updated_at
-		) VALUES ($1, $2, $3, (
-			SELECT
-				price * $4
-			FROM car
-			WHERE id = $2
-		), $4, now())
-	`
-
+				INSERT INTO "order" (
+						id,
+						car_id,
+						client_id,
+						day_count,
+						updated_at
+				) VALUES ($1, $2, $3, $4, now())
+			`
 	_, err := r.db.Exec(ctx, query,
 		id,
-		order.CarId,
-		order.ClientId,
-		order.DayCount,
+		req.CarId,
+		req.ClientId,
+		req.DayCount,
 	)
 
 	if err != nil {
@@ -69,7 +62,7 @@ func (r *OrderRepo) GetByID(ctx context.Context, req *models.OrderPrimeryKey) (*
 		clientId   sql.NullString
 		totalPrice sql.NullFloat64
 		paidPrice  sql.NullFloat64
-		dayCount   sql.NullInt64
+		dayCount   sql.NullFloat64
 		giveKm     sql.NullFloat64
 		receiveKm  sql.NullFloat64
 		status     sql.NullString
@@ -132,9 +125,9 @@ func (r *OrderRepo) GetByID(ctx context.Context, req *models.OrderPrimeryKey) (*
 	resp.ClientId = clientId.String
 	resp.TotalPrice = totalPrice.Float64
 	resp.PaidPrice = paidPrice.Float64
-	resp.DayCount = int(dayCount.Int64)
-	resp.GiveKm = int(giveKm.Float64)
-	resp.ReceiveKm = int(receiveKm.Float64)
+	resp.DayCount = dayCount.Float64
+	resp.GiveKm = giveKm.Float64
+	resp.ReceiveKm = receiveKm.Float64
 	resp.Status = status.String
 	resp.CreatedAt = createdAt.String
 	resp.UpdatedAt = updatedAt.String
@@ -143,107 +136,108 @@ func (r *OrderRepo) GetByID(ctx context.Context, req *models.OrderPrimeryKey) (*
 }
 
 func (r *OrderRepo) GetList(ctx context.Context, req *models.GetListOrderRequest) (*models.GetListOrderResponse, error) {
+
 	var (
-		offset = "OFFSET 0"
-		limit  = "LIMIT 10"
-		resp   = &models.GetListOrderResponse{}
+		resp   models.GetListOrderResponse
+		offset = " OFFSET 0"
+		limit  = " LIMIT 10"
 	)
-
-	if req.Offset > 0 {
-		offset = fmt.Sprintf("OFFSET %d", req.Offset)
-	}
-
-	if req.Limit > 0 {
-		limit = fmt.Sprintf("LIMIT %d", req.Limit)
-	}
 
 	query := `
 		SELECT
 			COUNT(*) OVER(),
-			id,
-			car_id,
-			client_id,
-			total_price,
-			paid_price,
-			day_count,
-			give_km,
-			receive_km,
-			status,
-			created_at,
-			updated_at
+				id,
+				car_id,
+				client_id,
+				total_price,
+				paid_price,
+				day_count,
+				give_km,
+				receive_km,
+				status,
+				created_at,
+				updated_at 
 		FROM "order"
+	
 	`
+
+	if req.Offset > 0 {
+		offset = fmt.Sprintf(" OFFSET %d", req.Offset)
+	}
+
+	if req.Limit > 0 {
+		limit = fmt.Sprintf(" LIMIT %d", req.Limit)
+	}
 
 	query += offset + limit
 
 	rows, err := r.db.Query(ctx, query)
 	if err != nil {
-		return nil, err
+		return &models.GetListOrderResponse{}, err
 	}
 
-	for rows.Next() {
+	var (
+		id          sql.NullString
+		car_id      sql.NullString
+		client_id   sql.NullString
+		total_price sql.NullFloat64
+		paid_price  sql.NullFloat64
+		day_count   sql.NullFloat64
+		give_km     sql.NullFloat64
+		receive_km  sql.NullFloat64
+		status      sql.NullString
+		createdAt   sql.NullString
+		updatedAt   sql.NullString
+	)
 
-		var (
-			id         sql.NullString
-			carId      sql.NullString
-			clientId   sql.NullString
-			totalPrice sql.NullFloat64
-			paidPrice  sql.NullFloat64
-			dayCount   sql.NullInt64
-			giveKm     sql.NullInt64
-			receiveKm  sql.NullInt64
-			status     sql.NullString
-			createdAt  sql.NullString
-			updatedAt  sql.NullString
-		)
+	for rows.Next() {
 
 		err = rows.Scan(
 			&resp.Count,
 			&id,
-			&carId,
-			&clientId,
-			&totalPrice,
-			&paidPrice,
-			&dayCount,
-			&giveKm,
-			&receiveKm,
+			&car_id,
+			&client_id,
+			&total_price,
+			&paid_price,
+			&day_count,
+			&give_km,
+			&receive_km,
 			&status,
 			&createdAt,
 			&updatedAt,
 		)
 
-		resp.Orders = append(resp.Orders, &models.Order{
-			Id:         id.String,
-			CarId:      carId.String,
-			ClientId:   clientId.String,
-			TotalPrice: totalPrice.Float64,
-			PaidPrice:  paidPrice.Float64,
-			DayCount:   int(dayCount.Int64),
-			GiveKm:     int(giveKm.Int64),
-			ReceiveKm:  int(receiveKm.Int64),
-			Status:     status.String,
-			CreatedAt:  createdAt.String,
-			UpdatedAt:  updatedAt.String,
-		})
-	}
+		order := models.Order{
+			Id:          id.String,
+			CarId:      car_id.String,
+			ClientId:   client_id.String,
+			TotalPrice: total_price.Float64,
+			PaidPrice:  paid_price.Float64,
+			DayCount:   day_count.Float64,
+			GiveKm:     give_km.Float64,
+			ReceiveKm:  receive_km.Float64,
+			Status:      status.String,
+			CreatedAt:   createdAt.String,
+			UpdatedAt:   updatedAt.String,
+		}
 
-	return resp, err
+		if err != nil {
+			return &models.GetListOrderResponse{}, err
+		}
+		resp.Orders = append(resp.Orders, &order)
+
+	}
+	return &resp, nil
 }
 
 func (r *OrderRepo) Update(ctx context.Context, order *models.UpdateOrder) error {
-
 	query := `
-		UPDATE
-			"order"
-		SET
+		UPDATE 
+			"order" 
+		SET 
 			car_id = $2,
 			client_id = $3,
-			total_price = $4,
-			paid_price = $5,
-			day_count = $6,
-			give_km = $7,
-			receive_km = $8,
-			status = $9
+			paid_price = $4,
 			updated_at = now()
 		WHERE id = $1
 	`
@@ -252,12 +246,7 @@ func (r *OrderRepo) Update(ctx context.Context, order *models.UpdateOrder) error
 		order.Id,
 		order.CarId,
 		order.ClientId,
-		order.TotalPrice,
 		order.PaidPrice,
-		order.DayCount,
-		order.GiveKm,
-		order.ReceiveKm,
-		order.Status,
 	)
 
 	if err != nil {
@@ -320,3 +309,4 @@ func (r *OrderRepo) Delete(ctx context.Context, req *models.OrderPrimeryKey) err
 
 	return nil
 }
+

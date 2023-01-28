@@ -1,7 +1,10 @@
 package models
 
 type OrderPrimeryKey struct {
-	Id string `json:"id"`
+	Id 		  string `json:"id"`
+	Login     string `json:"login"`
+	Password  string `json:"password"`
+	TypeU     string `json:"typeU"`
 }
 
 type CreateOrder struct {
@@ -24,9 +27,9 @@ type Order struct {
 	ClientFullName string   `json:"client_full_name"`
 	TotalPrice     float64  `json:"total_price"`
 	PaidPrice      float64  `json:"paid_price"`
-	DayCount       int      `json:"day_count"`
-	GiveKm         int      `json:"give_km"`
-	ReceiveKm      int      `json:"recieve_km"`
+	DayCount       float64      `json:"day_count"`
+	GiveKm         float64      `json:"give_km"`
+	ReceiveKm      float64      `json:"recieve_km"`
 	Status         string   `json:"status"`
 	CreatedAt      string   `json:"created_at"`
 	UpdatedAt      string   `json:"updated_at"`
@@ -45,14 +48,9 @@ type UpdateOrder struct {
 }
 
 type UpdateOrderSwag struct {
-	CarId      string  `json:"car_id"`
-	ClientId   string  `json:"client_id"`
-	TotalPrice float64 `json:"total_price"`
-	PaidPrice  float64 `json:"paid_price"`
-	DayCount   int     `json:"day_count"`
-	GiveKm     int     `json:"give_km"`
-	ReceiveKm  int     `json:"recieve_km"`
-	Status     string  `json:"status"`
+	Car_id  		string      `json:"car_id"`
+	Client_id   	string      `json:"client_id"`
+	Paid_price      float64      `json:"paid_price"`
 }
 
 type UpdatePatch struct {

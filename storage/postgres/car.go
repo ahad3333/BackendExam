@@ -74,13 +74,13 @@ func (r *CarRepo) GetByID(ctx context.Context, req *models.CarPrimeryKey) (*mode
 		model              sql.NullString
 		status             sql.NullString
 		price              sql.NullFloat64
-		dailyLimit         sql.NullInt64
-		overlimit          sql.NullInt64
+		dailyLimit         sql.NullFloat64
+		overlimit          sql.NullFloat64
 		investorPercentage sql.NullFloat64
 		branchPercentage   sql.NullFloat64
 		investorId         sql.NullString
 		branchId           sql.NullString
-		km                 sql.NullInt64
+		km                 sql.NullFloat64
 		createdAt          sql.NullString
 		updatedAt          sql.NullString
 	)
@@ -132,13 +132,13 @@ func (r *CarRepo) GetByID(ctx context.Context, req *models.CarPrimeryKey) (*mode
 		Model:              model.String,
 		Status:             status.String,
 		Price:              price.Float64,
-		DailyLimit:         int(dailyLimit.Int64),
-		OverLimit:          int(overlimit.Int64),
+		DailyLimit:         dailyLimit.Float64,
+		OverLimit:          overlimit.Float64,
 		InvestorPercentage: investorPercentage.Float64,
 		BranchPercentage:   branchPercentage.Float64,
 		InvestorId:         investorId.String,
 		BranchId:  			branchId.String,
-		Km:                 int(km.Int64),
+		Km:                 km.Float64,
 		CreatedAt:          createdAt.String,
 		UpdatedAt:          updatedAt.String,
 	}
@@ -146,104 +146,108 @@ func (r *CarRepo) GetByID(ctx context.Context, req *models.CarPrimeryKey) (*mode
 	return resp, err
 }
 
-func (r *CarRepo) GetList(ctx context.Context, req *models.GetListCarRequest) (*models.GetListCarResponse, error) {
+func (r *CarRepo)GetList(ctx context.Context, req *models.GetListCarRequest) (*models.GetListCarResponse, error) {
+
 	var (
-		offset = "OFFSET 0"
-		limit  = "LIMIT 10"
-		resp   = &models.GetListCarResponse{}
+		resp   models.GetListCarResponse
+		offset = " OFFSET 0"
+		limit  = " LIMIT 10"
+		search = req.Search
 	)
-
-	if req.Offset > 0 {
-		offset = fmt.Sprintf("OFFSET %d", req.Offset)
-	}
-
-	if req.Limit > 0 {
-		limit = fmt.Sprintf("LIMIT %d", req.Limit)
-	}
 
 	query := `
 		SELECT
 			COUNT(*) OVER(),
-			id,
-			state_number,
-			model,
-			status,
-			price,
-			daily_limit,
-			over_limit,
-			investor_percentage,
-			branch_percentage,
-			investor_id,
-			branch_id,
-			km,
-			created_at,
-			updated_at
-		FROM car
+				id,
+				state_number,
+				model,
+				status,
+				price,
+				daily_limit,
+				over_limit,
+				investor_percentage,
+				investor_id,
+				km,
+				created_at,
+				updated_at 
+		FROM Car
+	
 	`
+	if search != "" {
+		search = fmt.Sprintf("where model like  '%s%s' ", req.Search,"%")
+		query += search
+	}
+	if req.Offset > 0 {
+		offset = fmt.Sprintf(" OFFSET %d", req.Offset)
+	}
+
+	if req.Limit > 0 {
+		limit = fmt.Sprintf(" LIMIT %d", req.Limit)
+	}
 
 	query += offset + limit
-
+	
 	rows, err := r.db.Query(ctx, query)
 	if err != nil {
-		return nil, err
+		return &models.GetListCarResponse{}, err
 	}
+	var (
+		id          	   sql.NullString
+		state_number       sql.NullString
+		model       	   sql.NullString
+		status             sql.NullString
+		price  			   sql.NullFloat64
+		daily_limit        sql.NullFloat64
+		over_limit     	   sql.NullFloat64
+		investor_percentage  sql.NullFloat64
+		investor_id        sql.NullString
+		km  			   sql.NullFloat64
+		createdAt   	   sql.NullString
+		updatedAt   	   sql.NullString
+	)
 
 	for rows.Next() {
 
-		var (
-			id                 sql.NullString
-			stateNumber        sql.NullString
-			model              sql.NullString
-			status             sql.NullString
-			price              sql.NullFloat64
-			dailyLimit         sql.NullInt64
-			overlimit          sql.NullInt64
-			investorPercentage sql.NullFloat64
-			branchPercentage   sql.NullFloat64
-			investorId         sql.NullString
-			branchId           sql.NullString
-			km                 sql.NullInt64
-			createdAt          sql.NullString
-			updatedAt          sql.NullString
-		)
 
 		err = rows.Scan(
-			&resp.Count,
-			&id,
-			&stateNumber,
-			&model,
-			&status,
-			&price,
-			&dailyLimit,
-			&overlimit,
-			&investorPercentage,
-			&branchPercentage,
-			&investorId,
-			&branchId,
-			&km,
-			&createdAt,
-			&updatedAt,
+				&resp.Count,
+				&id,
+				&state_number,
+				&model,
+				&status,
+				&price,
+				&daily_limit,
+				&over_limit,
+				&investor_percentage,
+				&investor_id,
+				&km,
+				&createdAt,
+				&updatedAt,
 		)
+		
+		car := &models.Car{
+			Id:                  id.String,
+			StateNumber:        state_number.String,
+			Model:               model.String,
+			Status:              status.String,
+			Price:               price.Float64,
+			DailyLimit:         daily_limit.Float64,
+			OverLimit:          over_limit.Float64,
+			InvestorPercentage: investor_percentage.Float64,
+			InvestorId:         investor_id.String,
+			Km:                  km.Float64,
+			CreatedAt:           createdAt.String,
+			UpdatedAt:           updatedAt.String,
+		}
+		if err != nil {
+			return &models.GetListCarResponse{}, err
+		}
+		
+		resp.Cars = append(resp.Cars, car)
 
-		resp.Cars = append(resp.Cars, &models.Car{
-			Id:                 id.String,
-			StateNumber:        stateNumber.String,
-			Model:              model.String,
-			Status:             status.String,
-			Price:              price.Float64,
-			DailyLimit:         int(dailyLimit.Int64),
-			OverLimit:          int(overlimit.Int64),
-			InvestorPercentage: investorPercentage.Float64,
-			BranchPercentage: 	branchPercentage.Float64,
-			InvestorId:         investorId.String,
-			BranchId: 			branchId.String,	
-			Km:                 int(km.Int64),
-			CreatedAt:          createdAt.String,
-			UpdatedAt:          updatedAt.String,
-		})
+
 	}
-
-	return resp, err
+	return &resp, nil
 }
 
 func (r *CarRepo) Update(ctx context.Context, car *models.UpdateCar) (int64, error) {

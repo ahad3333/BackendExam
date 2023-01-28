@@ -129,6 +129,19 @@ definitions:
       day_count:
         type: integer
     type: object
+  models.CreateUser:
+    properties:
+      first_name:
+        type: string
+      last_name:
+        type: string
+      login:
+        type: string
+      password:
+        type: string
+      phone_number:
+        type: string
+    type: object
   models.Debtor:
     properties:
       full_name:
@@ -210,6 +223,15 @@ definitions:
           $ref: '#/definitions/models.Order'
         type: array
     type: object
+  models.GetListUserResponse:
+    properties:
+      count:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+    type: object
   models.Investor:
     properties:
       created_at:
@@ -230,6 +252,18 @@ definitions:
       price:
         type: number
     type: object
+  models.Login:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  models.LoginResponse:
+    properties:
+      access_token:
+        type: string
+    type: object
   models.Order:
     properties:
       car:
@@ -243,15 +277,15 @@ definitions:
       created_at:
         type: string
       day_count:
-        type: integer
+        type: number
       give_km:
-        type: integer
+        type: number
       id:
         type: string
       paid_price:
         type: number
       recieve_km:
-        type: integer
+        type: number
       status:
         type: string
       total_price:
@@ -311,17 +345,7 @@ definitions:
         type: string
       client_id:
         type: string
-      day_count:
-        type: integer
-      give_km:
-        type: integer
       paid_price:
-        type: number
-      recieve_km:
-        type: integer
-      status:
-        type: string
-      total_price:
         type: number
     type: object
   models.UpdatePatch:
@@ -330,6 +354,25 @@ definitions:
         additionalProperties: true
         type: object
       id:
+        type: string
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+      login:
+        type: string
+      password:
+        type: string
+      phone_number:
+        type: string
+      updated_at:
         type: string
     type: object
 info:
@@ -350,6 +393,10 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: search
+        in: query
+        name: search
+        type: string
       produces:
       - application/json
       responses:
@@ -963,39 +1010,38 @@ paths:
       summary: Update Investor
       tags:
       - Investor
-  /order:
-    get:
+  /login:
+    post:
       consumes:
       - application/json
-      description: Get List Order
-      operationId: get_list_order
+      description: Create Login
+      operationId: login
       parameters:
-      - description: offset
-        in: query
-        name: offset
-        type: integer
-      - description: limit
-        in: query
-        name: limit
-        type: integer
+      - description: LoginRequestBody
+        in: body
+        name: Login
+        required: true
+        schema:
+          $ref: '#/definitions/models.Login'
       produces:
       - application/json
       responses:
-        "200":
-          description: GetOrderListBody
+        "201":
+          description: GetLoginBody
           schema:
-            $ref: '#/definitions/models.GetListOrderResponse'
+            $ref: '#/definitions/models.LoginResponse'
         "400":
-          description: Invalid Argumant
+          description: Invalid Argument
           schema:
             type: string
         "500":
-          description: Server error
+          description: Server Error
           schema:
             type: string
-      summary: Get List Order
+      summary: Create Login
       tags:
-      - Order
+      - Login
+  /order:
     post:
       consumes:
       - application/json
@@ -1227,4 +1273,140 @@ paths:
       summary: investor share
       tags:
       - Report
+  /user:
+    post:
+      consumes:
+      - application/json
+      description: Create User
+      operationId: create_User
+      parameters:
+      - description: CreateUserRequestBody
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateUser'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: GetUserBody
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Invalid Argument
+          schema:
+            type: string
+        "500":
+          description: Server Error
+          schema:
+            type: string
+      summary: Create User
+      tags:
+      - User
+  /user/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get By Id User
+      operationId: get_by_id_User
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: GetUserBody
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Invalid Argument
+          schema:
+            type: string
+        "500":
+          description: Server Error
+          schema:
+            type: string
+      summary: Get By Id User
+      tags:
+      - User
+  /v1/order:
+    get:
+      consumes:
+      - application/json
+      description: Get List Order
+      operationId: get_list_order
+      parameters:
+      - description: offset
+        in: query
+        name: offset
+        type: integer
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: GetOrderListBody
+          schema:
+            $ref: '#/definitions/models.GetListOrderResponse'
+        "400":
+          description: Invalid Argumant
+          schema:
+            type: string
+        "500":
+          description: Server error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get List Order
+      tags:
+      - Order
+  /v1/user:
+    get:
+      consumes:
+      - application/json
+      description: Get List User
+      operationId: get_list_User
+      parameters:
+      - description: offset
+        in: query
+        name: offset
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: GetUserBody
+          schema:
+            $ref: '#/definitions/models.GetListUserResponse'
+        "400":
+          description: Invalid Argument
+          schema:
+            type: string
+        "500":
+          description: Server Error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get List User
+      tags:
+      - User
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

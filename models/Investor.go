@@ -27,6 +27,7 @@ type UpdateInvestorSwag struct {
 type GetListInvestorRequest struct {
 	Offset int64 `json:"offset"`
 	Limit  int64 `json:"limit"`
+	Search string `json:"search"`
 }
 
 type GetListInvestorResponse struct {

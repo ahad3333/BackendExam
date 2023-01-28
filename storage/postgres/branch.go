@@ -86,11 +86,13 @@ func (r *BranchRepo) GetByID(ctx context.Context, req *models.BranchPrimeryKey) 
 	}, err
 }
 
-func (r *BranchRepo) GetList(ctx context.Context, req *models.GetListBranchRequest) (*models.GetListBranchResponse, error) {
+func (r *BranchRepo)GetList(ctx context.Context, req *models.GetListBranchRequest) (*models.GetListBranchResponse, error) {
+
 	var (
-		offset = "OFFSET 0"
-		limit  = "LIMIT 10"
-		resp   = &models.GetListBranchResponse{}
+		resp   models.GetListBranchResponse
+		offset = " OFFSET 0"
+		limit  = " LIMIT 10"
+		search = req.Search
 	)
 
 	query := `
@@ -100,8 +102,14 @@ func (r *BranchRepo) GetList(ctx context.Context, req *models.GetListBranchReque
 			name,
 			created_at,
 			updated_at
-		FROM branch
+		FROM Investor
 	`
+
+	if search != "" {
+		search = fmt.Sprintf("where name like  '%s%s' ", req.Search,"%")
+		query += search
+	}
+
 	if req.Offset > 0 {
 		offset = fmt.Sprintf(" OFFSET %d", req.Offset)
 	}
@@ -112,23 +120,20 @@ func (r *BranchRepo) GetList(ctx context.Context, req *models.GetListBranchReque
 
 	query += offset + limit
 
-	rows, err := r.db.Query(ctx, query)
-
-	defer rows.Close()
+	rows, err := r.db.Query(ctx,query)
 
 	if err != nil {
-		return nil, err
+		return &models.GetListBranchResponse{}, err
 	}
 
-	for rows.Next() {
+	var (
+		id          sql.NullString
+		name        sql.NullString
+		createdAt 	sql.NullString
+		updatedAt 	sql.NullString
+	)
 
-		var (
-			id        sql.NullString
-			name      sql.NullString
-			createdAt sql.NullString
-			updatedAt sql.NullString
-		)
-	
+	for rows.Next() {
 		err = rows.Scan(
 			&resp.Count,
 			&id,
@@ -136,15 +141,23 @@ func (r *BranchRepo) GetList(ctx context.Context, req *models.GetListBranchReque
 			&createdAt,
 			&updatedAt,
 		)
-		resp.Branchs = append(resp.Branchs, &models.Branch{
-			Id:        id.String,
-			Name:      name.String,
-			CreatedAt: createdAt.String,
-			UpdatedAt: updatedAt.String,
-		})
+
+		if err != nil {
+			return &models.GetListBranchResponse{}, err
+		}
+
+		branch := models.Branch{
+			Id:          id.String,
+			Name:        name.String,
+			CreatedAt:   createdAt.String,
+			UpdatedAt:   updatedAt.String,
+		}
+
+		resp.Branchs = append(resp.Branchs, &branch)
 	}
 
-	return resp, err
+
+	return &resp, nil
 }
 
 func (r *BranchRepo) Update(ctx context.Context, branch *models.UpdateBranch) error {

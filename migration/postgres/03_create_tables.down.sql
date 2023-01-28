@@ -2,7 +2,9 @@
 DROP TABLE IF EXISTS branch CASCADE;
 
 ALTER TABLE car
-  DROP branch_id UUID NOT NULL REFERENCES  branch(id);
+  DROP branch_id ;
 
-ALTER TABLE car
-  DROP  branch_percentage NUMERIC NOT NULL; 
+ALTER TABLE "order"
+    DROP branch_id ;
+
+  

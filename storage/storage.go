@@ -13,6 +13,7 @@ type StorageI interface {
 	Order() OrderRepoI
 	Report() ReportRepoI
 	Branch() BranchRepoI
+	User() UserRepoI
 }
 
 type InvestorRepoI interface {
@@ -60,4 +61,12 @@ type BranchRepoI interface {
 	GetList(context.Context, *models.GetListBranchRequest) (*models.GetListBranchResponse, error)
 	Update(context.Context, *models.UpdateBranch) error
 	Delete(context.Context, *models.BranchPrimeryKey) error
+}
+
+type UserRepoI interface {
+	Create(ctx context.Context, req *models.CreateUser) (string, error)
+	GetByPKey(ctx context.Context, req *models.UserPrimarKey) (*models.User, error)
+	GetList(ctx context.Context, req *models.GetListUserRequest) (*models.GetListUserResponse, error)
+	// Update(ctx context.Context, req *models.UpdateUser) (int64, error)
+	// Delete(ctx context.Context, req *models.UserPrimarKey) error
 }

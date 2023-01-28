@@ -86,20 +86,14 @@ func (r *InvestorRepo) GetByID(ctx context.Context, req *models.InvestorPrimeryK
 	}, err
 }
 
-func (r *InvestorRepo) GetList(ctx context.Context, req *models.GetListInvestorRequest) (*models.GetListInvestorResponse, error) {
+func (r *InvestorRepo)GetList(ctx context.Context, req *models.GetListInvestorRequest) (*models.GetListInvestorResponse, error) {
+
 	var (
-		offset = "OFFSET 0"
-		limit  = "LIMIT 10"
-		resp   = &models.GetListInvestorResponse{}
+		resp   models.GetListInvestorResponse
+		offset = " OFFSET 0"
+		limit  = " LIMIT 10"
+		search = req.Search
 	)
-
-	if req.Offset > 0 {
-		offset = fmt.Sprintf("OFFSET %d", req.Offset)
-	}
-
-	if req.Limit > 0 {
-		limit = fmt.Sprintf("LIMIT %d", req.Limit)
-	}
 
 	query := `
 		SELECT
@@ -108,27 +102,38 @@ func (r *InvestorRepo) GetList(ctx context.Context, req *models.GetListInvestorR
 			name,
 			created_at,
 			updated_at
-		FROM investor
+		FROM Investor
 	`
+
+	if search != "" {
+		search = fmt.Sprintf("where name like  '%s%s' ", req.Search,"%")
+		query += search
+	}
+
+	if req.Offset > 0 {
+		offset = fmt.Sprintf(" OFFSET %d", req.Offset)
+	}
+
+	if req.Limit > 0 {
+		limit = fmt.Sprintf(" LIMIT %d", req.Limit)
+	}
 
 	query += offset + limit
 
-	rows, err := r.db.Query(ctx, query)
-	defer rows.Close()
+	rows, err := r.db.Query(ctx,query)
 
 	if err != nil {
-		return nil, err
+		return &models.GetListInvestorResponse{}, err
 	}
 
+	var (
+		id          sql.NullString
+		name        sql.NullString
+		createdAt 	sql.NullString
+		updatedAt 	sql.NullString
+	)
+
 	for rows.Next() {
-
-		var (
-			id        sql.NullString
-			name      sql.NullString
-			createdAt sql.NullString
-			updatedAt sql.NullString
-		)
-
 		err = rows.Scan(
 			&resp.Count,
 			&id,
@@ -137,15 +142,22 @@ func (r *InvestorRepo) GetList(ctx context.Context, req *models.GetListInvestorR
 			&updatedAt,
 		)
 
-		resp.Investors = append(resp.Investors, &models.Investor{
-			Id:        id.String,
-			Name:      name.String,
-			CreatedAt: createdAt.String,
-			UpdatedAt: updatedAt.String,
-		})
+		if err != nil {
+			return &models.GetListInvestorResponse{}, err
+		}
+
+		investor := models.Investor{
+			Id:          id.String,
+			Name:        name.String,
+			CreatedAt:   createdAt.String,
+			UpdatedAt:   updatedAt.String,
+		}
+
+		resp.Investors = append(resp.Investors, &investor)
 	}
 
-	return resp, err
+
+	return &resp, nil
 }
 
 func (r *InvestorRepo) Update(ctx context.Context, Investor *models.UpdateInvestor) error {

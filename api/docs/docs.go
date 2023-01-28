@@ -42,6 +42,12 @@ const docTemplate = `{
                         "description": "limit",
                         "name": "limit",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "search",
+                        "name": "search",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -956,9 +962,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/order": {
-            "get": {
-                "description": "Get List Order",
+        "/login": {
+            "post": {
+                "description": "Create Login",
                 "consumes": [
                     "application/json"
                 ],
@@ -966,45 +972,44 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Order"
+                    "Login"
                 ],
-                "summary": "Get List Order",
-                "operationId": "get_list_order",
+                "summary": "Create Login",
+                "operationId": "login",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "offset",
-                        "name": "offset",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "limit",
-                        "name": "limit",
-                        "in": "query"
+                        "description": "LoginRequestBody",
+                        "name": "Login",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Login"
+                        }
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "GetOrderListBody",
+                    "201": {
+                        "description": "GetLoginBody",
                         "schema": {
-                            "$ref": "#/definitions/models.GetListOrderResponse"
+                            "$ref": "#/definitions/models.LoginResponse"
                         }
                     },
                     "400": {
-                        "description": "Invalid Argumant",
+                        "description": "Invalid Argument",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Server error",
+                        "description": "Server Error",
                         "schema": {
                             "type": "string"
                         }
                     }
                 }
-            },
+            }
+        },
+        "/order": {
             "post": {
                 "description": "Create Order",
                 "consumes": [
@@ -1350,6 +1355,208 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/user": {
+            "post": {
+                "description": "Create User",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Create User",
+                "operationId": "create_User",
+                "parameters": [
+                    {
+                        "description": "CreateUserRequestBody",
+                        "name": "User",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "GetUserBody",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Argument",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{id}": {
+            "get": {
+                "description": "Get By Id User",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get By Id User",
+                "operationId": "get_by_id_User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "GetUserBody",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Argument",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/order": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get List Order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get List Order",
+                "operationId": "get_list_order",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "offset",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "GetOrderListBody",
+                        "schema": {
+                            "$ref": "#/definitions/models.GetListOrderResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Argumant",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/user": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get List User",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get List User",
+                "operationId": "get_list_User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "offset",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "GetUserBody",
+                        "schema": {
+                            "$ref": "#/definitions/models.GetListUserResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Argument",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1553,6 +1760,26 @@ const docTemplate = `{
                 }
             }
         },
+        "models.CreateUser": {
+            "type": "object",
+            "properties": {
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Debtor": {
             "type": "object",
             "properties": {
@@ -1679,6 +1906,20 @@ const docTemplate = `{
                 }
             }
         },
+        "models.GetListUserResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
+                }
+            }
+        },
         "models.Investor": {
             "type": "object",
             "properties": {
@@ -1710,6 +1951,25 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Login": {
+            "type": "object",
+            "properties": {
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Order": {
             "type": "object",
             "properties": {
@@ -1729,10 +1989,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "day_count": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "give_km": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "id": {
                     "type": "string"
@@ -1741,7 +2001,7 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "recieve_km": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "status": {
                     "type": "string"
@@ -1834,22 +2094,7 @@ const docTemplate = `{
                 "client_id": {
                     "type": "string"
                 },
-                "day_count": {
-                    "type": "integer"
-                },
-                "give_km": {
-                    "type": "integer"
-                },
                 "paid_price": {
-                    "type": "number"
-                },
-                "recieve_km": {
-                    "type": "integer"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "total_price": {
                     "type": "number"
                 }
             }
@@ -1865,6 +2110,42 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

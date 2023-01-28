@@ -92,6 +92,7 @@ func (h *Handler) GetByIdBranch(c *gin.Context) {
 // @Produce json
 // @Param offset query int false "offset"
 // @Param limit query int false "limit"
+// @Param search query string false "search"
 // @Success 200 {object} models.GetListBranchResponse "GetBranchListBody"
 // @Response 400 {object} string "Invalid Argumant"
 // @Failure 500 {object} string "Server error"

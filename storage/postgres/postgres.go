@@ -18,6 +18,7 @@ type Store struct {
 	order    *OrderRepo
 	report   *ReportRepo
 	branch   *BranchRepo
+	user     *UserRepo
 }
 
 func NewPostgres(ctx context.Context, cfg config.Config) (storage.StorageI, error) {
@@ -51,6 +52,7 @@ func NewPostgres(ctx context.Context, cfg config.Config) (storage.StorageI, erro
 		order:    NewOrderRepo(pool),
 		report:   NewReportRepo(pool),
 		branch:   NewBranchRepo(pool),
+		user:  NewUserRepo(pool),
 	}, nil
 }
 
@@ -110,4 +112,13 @@ func (s *Store) Branch() storage.BranchRepoI {
 	}
 
 	return s.branch
+}
+
+func (s *Store) User() storage.UserRepoI {
+
+	if s.user == nil {
+		s.user =NewUserRepo(s.db)
+	}
+
+	return s.user
 }

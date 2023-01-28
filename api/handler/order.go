@@ -74,8 +74,9 @@ func (h *Handler) GetByIdOrder(c *gin.Context) {
 }
 
 // GetListOrder godoc
+// @Security ApiKeyAuth
 // @ID get_list_order
-// @Router /order [GET]
+// @Router /v1/order [GET]
 // @Summary Get List Order
 // @Description Get List Order
 // @Tags Order

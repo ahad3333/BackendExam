@@ -14,6 +14,6 @@ run:
 	go run cmd/main.go 
 
 migrate:
-	migrate create -ext sql -dir ./migrations/postgres -seq -digits 2 create_table
+	migrate create -ext sql -dir ./migration/postgres -seq -digits 2 create_table
 
 
