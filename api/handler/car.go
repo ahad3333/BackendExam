@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -48,6 +49,13 @@ func (h *Handler) CreateCar(c *gin.Context) {
 	})
 	if err != nil {
 		log.Println("error whiling get by id Car:", err.Error())
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	err = h.cache.CarCache().Delete()
+	if err != nil {
+		log.Println("error whiling delete cache Car:", err.Error())
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -123,15 +131,40 @@ func (h *Handler) GetListCar(c *gin.Context) {
 		}
 	}
 
-	res, err := h.storage.Car().GetList(context.Background(), &models.GetListCarRequest{
-		Offset: int64(offset),
-		Limit:  int64(limit),
-	})
-
+	exists, err := h.cache.CarCache().Exists()
 	if err != nil {
-		log.Println("error whiling get list Car:", err.Error())
+		log.Println("error whiling cache exists Car:", err.Error())
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
+	}
+
+	var res *models.GetListCarResponse
+	if !exists {
+		fmt.Println("Postgres")
+		res, err = h.storage.Car().GetList(context.Background(), &models.GetListCarRequest{
+			Offset: int64(offset),
+			Limit:  int64(limit),
+		})
+		if err != nil {
+			log.Println("error whiling get list Car:", err.Error())
+			c.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		err = h.cache.CarCache().Create(res)
+		if err != nil {
+			log.Println("error whiling create cache Car:", err.Error())
+			c.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+	} else {
+		fmt.Println("Redis")
+		res, err = h.cache.CarCache().GetList()
+		if err != nil {
+			log.Println("error whiling get list cache Car:", err.Error())
+			c.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
 	}
 
 	c.JSON(http.StatusCreated, res)
@@ -187,6 +220,12 @@ func (h *Handler) UpdateCar(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errors.New("error whiling get by id").Error())
 		return
 	}
+	err = h.cache.CarCache().Delete()
+	if err != nil {
+		log.Println("error whiling delete cache Car:", err.Error())
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	c.JSON(http.StatusAccepted, resp)
 }
@@ -210,6 +249,12 @@ func (h *Handler) DeleteCar(c *gin.Context) {
 	if err != nil {
 		log.Println("error whiling delete car:", err.Error())
 		c.JSON(http.StatusNoContent, err.Error())
+		return
+	}
+	err = h.cache.CarCache().Delete()
+	if err != nil {
+		log.Println("error whiling delete cache Car:", err.Error())
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 	c.JSON(http.StatusCreated, "Car deleted")

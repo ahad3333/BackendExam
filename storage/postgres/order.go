@@ -36,14 +36,16 @@ func (r *OrderRepo) Insert(ctx context.Context, req *models.CreateOrder) (string
 						car_id,
 						client_id,
 						day_count,
+						branch_id,
 						updated_at
-				) VALUES ($1, $2, $3, $4, now())
+				) VALUES ($1, $2, $3, $4, $5, now())
 			`
 	_, err := r.db.Exec(ctx, query,
 		id,
 		req.CarId,
 		req.ClientId,
 		req.DayCount,
+		req.BranchId,
 	)
 
 	if err != nil {
@@ -60,6 +62,7 @@ func (r *OrderRepo) GetByID(ctx context.Context, req *models.OrderPrimeryKey) (*
 		id         sql.NullString
 		carId      sql.NullString
 		clientId   sql.NullString
+		branchId   sql.NullString
 		totalPrice sql.NullFloat64
 		paidPrice  sql.NullFloat64
 		dayCount   sql.NullFloat64
@@ -82,6 +85,7 @@ func (r *OrderRepo) GetByID(ctx context.Context, req *models.OrderPrimeryKey) (*
 			COALESCE(cl.first_name || ' ' || cl.last_name, ''),
 
 			o.client_id,
+			o.branch_id,
 			o.total_price,
 			o.paid_price,
 			o.day_count,
@@ -106,6 +110,7 @@ func (r *OrderRepo) GetByID(ctx context.Context, req *models.OrderPrimeryKey) (*
 
 		&resp.ClientFullName,
 		&clientId,
+		&branchId,
 		&totalPrice,
 		&paidPrice,
 		&dayCount,
@@ -123,6 +128,7 @@ func (r *OrderRepo) GetByID(ctx context.Context, req *models.OrderPrimeryKey) (*
 	resp.Id = id.String
 	resp.CarId = carId.String
 	resp.ClientId = clientId.String
+	resp.BranchId = branchId.String
 	resp.TotalPrice = totalPrice.Float64
 	resp.PaidPrice = paidPrice.Float64
 	resp.DayCount = dayCount.Float64
@@ -141,23 +147,34 @@ func (r *OrderRepo) GetList(ctx context.Context, req *models.GetListOrderRequest
 		resp   models.GetListOrderResponse
 		offset = " OFFSET 0"
 		limit  = " LIMIT 10"
+		res = models.CarOrder{}
 	)
 
 	query := `
 		SELECT
-			COUNT(*) OVER(),
-				id,
-				car_id,
-				client_id,
-				total_price,
-				paid_price,
-				day_count,
-				give_km,
-				receive_km,
-				status,
-				created_at,
-				updated_at 
-		FROM "order"
+		COUNT(*) OVER(),
+			o.id,
+			o.car_id,
+
+			COALESCE(c.id::varchar, ''),
+			COALESCE(c.state_number, ''),
+			COALESCE(c.model, ''),
+
+			COALESCE(cl.first_name || ' ' || cl.last_name, ''),
+
+			o.client_id,
+			o.branch_id,
+			o.total_price,
+			o.paid_price,
+			o.day_count,
+			o.give_km,
+			o.receive_km,
+			o.status,
+			o.created_at,
+			o.updated_at
+		FROM "order" AS o
+		JOIN car AS c ON c.id = o.car_id
+		JOIN client AS cl ON cl.id = o.client_id
 	
 	`
 
@@ -180,6 +197,8 @@ func (r *OrderRepo) GetList(ctx context.Context, req *models.GetListOrderRequest
 		id          sql.NullString
 		car_id      sql.NullString
 		client_id   sql.NullString
+		branchId    sql.NullString
+		clientfullname sql.NullString
 		total_price sql.NullFloat64
 		paid_price  sql.NullFloat64
 		day_count   sql.NullFloat64
@@ -196,7 +215,12 @@ func (r *OrderRepo) GetList(ctx context.Context, req *models.GetListOrderRequest
 			&resp.Count,
 			&id,
 			&car_id,
+			&res.Id,
+			&res.StateNumber,
+			&res.Model,
+			&clientfullname,
 			&client_id,
+			&branchId,
 			&total_price,
 			&paid_price,
 			&day_count,
@@ -210,7 +234,10 @@ func (r *OrderRepo) GetList(ctx context.Context, req *models.GetListOrderRequest
 		order := models.Order{
 			Id:          id.String,
 			CarId:      car_id.String,
+			Car: res,
+			ClientFullName: clientfullname.String,
 			ClientId:   client_id.String,
+			BranchId:   branchId.String,
 			TotalPrice: total_price.Float64,
 			PaidPrice:  paid_price.Float64,
 			DayCount:   day_count.Float64,
@@ -223,6 +250,103 @@ func (r *OrderRepo) GetList(ctx context.Context, req *models.GetListOrderRequest
 
 		if err != nil {
 			return &models.GetListOrderResponse{}, err
+		}
+		resp.Orders = append(resp.Orders, &order)
+
+	}
+	return &resp, nil
+}
+
+func (r *OrderRepo) GetListInvestor(ctx context.Context, req *models.GetListOrderRequest) (*models.GetListOrderInvestorResponse, error) {
+
+	var (
+		resp   models.GetListOrderInvestorResponse
+		offset = " OFFSET 0"
+		limit  = " LIMIT 10"
+		res = models.CarOrder{}
+	)
+
+	query := `
+		SELECT
+		COUNT(*) OVER(),
+			o.id,
+			o.car_id,
+			COALESCE(c.id::varchar, ''),
+			COALESCE(c.state_number, ''),
+			COALESCE(c.model, ''),
+			COALESCE(cl.first_name || ' ' || cl.last_name, ''),
+			o.client_id,
+			o.branch_id,
+			o.total_price,
+			o.day_count,
+			o.created_at,
+			o.updated_at
+		FROM "order" AS o
+		JOIN car AS c ON c.id = o.car_id
+		JOIN client AS cl ON cl.id = o.client_id
+	
+	`
+
+	if req.Offset > 0 {
+		offset = fmt.Sprintf(" OFFSET %d", req.Offset)
+	}
+
+	if req.Limit > 0 {
+		limit = fmt.Sprintf(" LIMIT %d", req.Limit)
+	}
+
+	query += offset + limit
+
+	rows, err := r.db.Query(ctx, query)
+	if err != nil {
+		return &models.GetListOrderInvestorResponse{}, err
+	}
+
+	var (
+		id          sql.NullString
+		car_id      sql.NullString
+		client_id   sql.NullString
+		branchid   sql.NullString
+		clientfullname  sql.NullString
+		total_price sql.NullFloat64
+		day_count   sql.NullFloat64
+		createdAt   sql.NullString
+		updatedAt   sql.NullString
+	)
+
+	for rows.Next() {
+
+		err = rows.Scan(
+			&resp.Count,
+			&id,
+			&car_id,
+			&res.Id,
+			&res.StateNumber,
+			&res.Model,
+			&clientfullname,
+			&client_id,
+			&branchid,
+			&total_price,
+			&day_count,
+			&createdAt,
+			&updatedAt,
+		)
+
+		order := models.OrderInvestor{
+			Id:          id.String,
+			CarId:      car_id.String,
+			Car: res,
+			ClientFullName: clientfullname.String,
+			ClientId:   client_id.String,
+			BranchId: branchid.String,
+			TotalPrice: total_price.Float64,
+			DayCount:   day_count.Float64,
+			CreatedAt:   createdAt.String,
+			UpdatedAt:   updatedAt.String,
+		}
+
+		if err != nil {
+			return &models.GetListOrderInvestorResponse{}, err
 		}
 		resp.Orders = append(resp.Orders, &order)
 
@@ -287,7 +411,6 @@ func (r *OrderRepo) UpdatePatch(ctx context.Context, req *models.UpdatePatch) er
 		`
 
 	query, args := helper.ReplaceQueryParams(query, req.Data)
-
 	_, err := r.db.Exec(ctx, query, args...)
 	if err != nil {
 		return err

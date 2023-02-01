@@ -1,11 +1,12 @@
 package handler
 
 import (
-	"context"
 	"app/config"
 	"app/models"
 	"app/pkg/helper"
+	"context"
 	"errors"
+
 	"log"
 	"net/http"
 
@@ -47,8 +48,8 @@ func (h *Handler) Login(c *gin.Context) {
 
 	data := map[string]interface{}{
 		"user_id": resp.Id,
+		"typeu": resp.TypeU,
 	}
-
 	token, err := helper.GenerateJWT(data, config.TimeExpiredAt, h.cfg.AuthSecretKey)
 	if err != nil {
 		log.Printf("error whiling GenerateJWT: %v\n", err)

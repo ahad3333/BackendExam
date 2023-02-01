@@ -11,6 +11,7 @@ import (
 
 type TokenInfo struct {
 	UserID string
+	TypeU  string
 }
 
 // GenerateJWT ...
@@ -36,7 +37,7 @@ func GenerateJWT(m map[string]interface{}, tokenExpireTime time.Duration, tokenS
 	return tokenString, nil
 }
 
-func ParseClaims(token string, secretKey string) (result TokenInfo, err error) {
+func ParseClaims(token string,secretKey string) (result TokenInfo, err error) {
 	var claims jwt.MapClaims
 
 	claims, err = ExtractClaims(token, secretKey)
@@ -46,6 +47,11 @@ func ParseClaims(token string, secretKey string) (result TokenInfo, err error) {
 
 	result.UserID = cast.ToString(claims["user_id"])
 	if result.UserID == "" {
+		err = errors.New("cannot parse 'user_id' field")
+		return result, err
+	}
+	result.TypeU = cast.ToString(claims["typeu"])
+	if result.TypeU == "" {
 		err = errors.New("cannot parse 'user_id' field")
 		return result, err
 	}

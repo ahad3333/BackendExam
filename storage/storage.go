@@ -44,6 +44,7 @@ type OrderRepoI interface {
 	Insert(context.Context, *models.CreateOrder) (string, error)
 	GetByID(context.Context, *models.OrderPrimeryKey) (*models.Order, error)
 	GetList(context.Context, *models.GetListOrderRequest) (*models.GetListOrderResponse, error)
+	GetListInvestor(context.Context, *models.GetListOrderRequest) (*models.GetListOrderInvestorResponse, error)
 	Update(context.Context, *models.UpdateOrder) error
 	UpdatePatch(context.Context, *models.UpdatePatch) error
 	Delete(context.Context, *models.OrderPrimeryKey) error

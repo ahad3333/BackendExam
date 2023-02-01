@@ -10,6 +10,10 @@ type Config struct {
 	PostgresPort     string
 	PostgresMaxConn  int32
 
+	RedisAddr     string
+	RedisPassword string
+	RedisDB       int
+
 	AuthSecretKey string
 }
 
@@ -25,6 +29,10 @@ func Load() Config {
 	cfg.PostgresPassword = "0003"
 	cfg.PostgresPort = "3003"
 	cfg.PostgresMaxConn = 30
+
+	cfg.RedisAddr = "localhost:6379"
+	cfg.RedisDB = 0
+
 	cfg.AuthSecretKey = "9K+WgNTglA44Hg=="
 
 	return cfg

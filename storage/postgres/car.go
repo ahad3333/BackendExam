@@ -37,12 +37,11 @@ func (r *CarRepo) Insert(ctx context.Context, car *models.CreateCar) (string, er
 			daily_limit,
 			over_limit,
 			investor_percentage,
-			branch_percentage,
 			investor_id,
 			branch_id,
 			km,
 			updated_at
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, now())
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, now())
 	`
 
 	_, err := r.db.Exec(ctx, query,
@@ -53,7 +52,6 @@ func (r *CarRepo) Insert(ctx context.Context, car *models.CreateCar) (string, er
 		car.DailyLimit,
 		car.OverLimit,
 		car.InvestorPercentage,
-		car.BranchPercentage,
 		car.InvestorId,
 		car.BranchId,
 		car.Km,
@@ -77,7 +75,6 @@ func (r *CarRepo) GetByID(ctx context.Context, req *models.CarPrimeryKey) (*mode
 		dailyLimit         sql.NullFloat64
 		overlimit          sql.NullFloat64
 		investorPercentage sql.NullFloat64
-		branchPercentage   sql.NullFloat64
 		investorId         sql.NullString
 		branchId           sql.NullString
 		km                 sql.NullFloat64
@@ -95,7 +92,6 @@ func (r *CarRepo) GetByID(ctx context.Context, req *models.CarPrimeryKey) (*mode
 			daily_limit,
 			over_limit,
 			investor_percentage,
-			branch_percentage,
 			investor_id,
 			branch_id,
 			km,
@@ -114,7 +110,6 @@ func (r *CarRepo) GetByID(ctx context.Context, req *models.CarPrimeryKey) (*mode
 		&dailyLimit,
 		&overlimit,
 		&investorPercentage,
-		&branchPercentage,
 		&investorId,
 		&branchId,
 		&km,
@@ -135,9 +130,8 @@ func (r *CarRepo) GetByID(ctx context.Context, req *models.CarPrimeryKey) (*mode
 		DailyLimit:         dailyLimit.Float64,
 		OverLimit:          overlimit.Float64,
 		InvestorPercentage: investorPercentage.Float64,
-		BranchPercentage:   branchPercentage.Float64,
 		InvestorId:         investorId.String,
-		BranchId:  			branchId.String,
+		BranchId:           branchId.String,
 		Km:                 km.Float64,
 		CreatedAt:          createdAt.String,
 		UpdatedAt:          updatedAt.String,
@@ -146,7 +140,7 @@ func (r *CarRepo) GetByID(ctx context.Context, req *models.CarPrimeryKey) (*mode
 	return resp, err
 }
 
-func (r *CarRepo)GetList(ctx context.Context, req *models.GetListCarRequest) (*models.GetListCarResponse, error) {
+func (r *CarRepo) GetList(ctx context.Context, req *models.GetListCarRequest) (*models.GetListCarResponse, error) {
 
 	var (
 		resp   models.GetListCarResponse
@@ -167,6 +161,7 @@ func (r *CarRepo)GetList(ctx context.Context, req *models.GetListCarRequest) (*m
 				over_limit,
 				investor_percentage,
 				investor_id,
+				branch_id,
 				km,
 				created_at,
 				updated_at 
@@ -174,7 +169,7 @@ func (r *CarRepo)GetList(ctx context.Context, req *models.GetListCarRequest) (*m
 	
 	`
 	if search != "" {
-		search = fmt.Sprintf("where model like  '%s%s' ", req.Search,"%")
+		search = fmt.Sprintf("where model like  '%s%s' ", req.Search, "%")
 		query += search
 	}
 	if req.Offset > 0 {
@@ -186,65 +181,66 @@ func (r *CarRepo)GetList(ctx context.Context, req *models.GetListCarRequest) (*m
 	}
 
 	query += offset + limit
-	
+
 	rows, err := r.db.Query(ctx, query)
 	if err != nil {
 		return &models.GetListCarResponse{}, err
 	}
 	var (
-		id          	   sql.NullString
-		state_number       sql.NullString
-		model       	   sql.NullString
-		status             sql.NullString
-		price  			   sql.NullFloat64
-		daily_limit        sql.NullFloat64
-		over_limit     	   sql.NullFloat64
-		investor_percentage  sql.NullFloat64
-		investor_id        sql.NullString
-		km  			   sql.NullFloat64
-		createdAt   	   sql.NullString
-		updatedAt   	   sql.NullString
+		id                  sql.NullString
+		state_number        sql.NullString
+		model               sql.NullString
+		status              sql.NullString
+		price               sql.NullFloat64
+		daily_limit         sql.NullFloat64
+		over_limit          sql.NullFloat64
+		investor_percentage sql.NullFloat64
+		investor_id         sql.NullString
+		branch_id           sql.NullString
+		km                  sql.NullFloat64
+		createdAt           sql.NullString
+		updatedAt           sql.NullString
 	)
 
 	for rows.Next() {
 
-
 		err = rows.Scan(
-				&resp.Count,
-				&id,
-				&state_number,
-				&model,
-				&status,
-				&price,
-				&daily_limit,
-				&over_limit,
-				&investor_percentage,
-				&investor_id,
-				&km,
-				&createdAt,
-				&updatedAt,
+			&resp.Count,
+			&id,
+			&state_number,
+			&model,
+			&status,
+			&price,
+			&daily_limit,
+			&over_limit,
+			&investor_percentage,
+			&investor_id,
+			&branch_id,
+			&km,
+			&createdAt,
+			&updatedAt,
 		)
-		
+
 		car := &models.Car{
-			Id:                  id.String,
+			Id:                 id.String,
 			StateNumber:        state_number.String,
-			Model:               model.String,
-			Status:              status.String,
-			Price:               price.Float64,
+			Model:              model.String,
+			Status:             status.String,
+			Price:              price.Float64,
 			DailyLimit:         daily_limit.Float64,
 			OverLimit:          over_limit.Float64,
 			InvestorPercentage: investor_percentage.Float64,
 			InvestorId:         investor_id.String,
-			Km:                  km.Float64,
-			CreatedAt:           createdAt.String,
-			UpdatedAt:           updatedAt.String,
+			BranchId:			branch_id.String,
+			Km:                 km.Float64,
+			CreatedAt:          createdAt.String,
+			UpdatedAt:          updatedAt.String,
 		}
 		if err != nil {
 			return &models.GetListCarResponse{}, err
 		}
-		
-		resp.Cars = append(resp.Cars, car)
 
+		resp.Cars = append(resp.Cars, car)
 
 	}
 	return &resp, nil
@@ -261,10 +257,9 @@ func (r *CarRepo) Update(ctx context.Context, car *models.UpdateCar) (int64, err
 			daily_limit = $5,
 			over_limit = $6,
 			investor_percentage = $7,
-			branch_percentage = $8,
-			investor_id = $9,
-			branch_id = $10,
-			km = $11,
+			investor_id = $8,
+			branch_id = $9,
+			km = $10,
 			updated_at = now()
 		WHERE id = $1
 	`
@@ -277,7 +272,6 @@ func (r *CarRepo) Update(ctx context.Context, car *models.UpdateCar) (int64, err
 		car.DailyLimit,
 		car.OverLimit,
 		car.InvestorPercentage,
-		car.BranchPercentage,
 		car.InvestorId,
 		car.BranchId,
 		car.Km,
@@ -292,7 +286,13 @@ func (r *CarRepo) Update(ctx context.Context, car *models.UpdateCar) (int64, err
 
 func (r *CarRepo) Delete(ctx context.Context, req *models.CarPrimeryKey) error {
 
-	_, err := r.db.Exec(ctx, "delete from car where id = $1", req.Id)
+	_, err := r.db.Exec(ctx, `delete from "order" where car_id = $1`, req.Id)
+	if err != nil {
+		return err
+	}
+
+
+	_, err = r.db.Exec(ctx, "delete from car where id = $1", req.Id)
 	if err != nil {
 		return err
 	}

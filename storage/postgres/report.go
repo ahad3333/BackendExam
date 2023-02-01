@@ -123,6 +123,7 @@ func (r *ReportRepo) GetListBranchShare(ctx context.Context) (*models.GetListBra
 
 	query := `
 		SELECT
+		COUNT(*) OVER(),
 			b.id,
 			b.name,
 			SUM(o.paid_price-(o.paid_price / 100 * c.investor_percentage))

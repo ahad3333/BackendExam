@@ -34,7 +34,7 @@ CREATE TABLE "order" (
     id UUID PRIMARY KEY,
     car_id UUID NOT NULL REFERENCES car(id),
     client_id UUID NOT NULL REFERENCES client(id),
-    total_price NUMERIC NOT NULL,
+    total_price NUMERIC,
     paid_price NUMERIC DEFAULT 0,
     day_count INT NOT NULL,
     give_km NUMERIC,

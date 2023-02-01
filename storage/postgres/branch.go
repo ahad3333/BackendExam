@@ -102,7 +102,7 @@ func (r *BranchRepo)GetList(ctx context.Context, req *models.GetListBranchReques
 			name,
 			created_at,
 			updated_at
-		FROM Investor
+		FROM branch
 	`
 
 	if search != "" {

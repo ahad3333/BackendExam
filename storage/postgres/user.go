@@ -33,10 +33,11 @@ func (f *UserRepo) Create(ctx context.Context, user *models.CreateUser) (string,
 			first_name,
 			last_name,
 			login,
+			typeu,
 			password,
 			phone_number,
 			updated_at
-		) VALUES ( $1, $2, $3, $4, $5, $6, now())
+		) VALUES ( $1, $2, $3, $4, $5, $6,$7, now())
 	`
 
 	_, err := f.db.Exec(ctx, query,
@@ -44,6 +45,7 @@ func (f *UserRepo) Create(ctx context.Context, user *models.CreateUser) (string,
 		user.FirstName,
 		user.LastName,
 		user.Login,
+		user.TypeU,
 		user.Password,
 		user.PhoneNumber,
 	)
@@ -62,17 +64,23 @@ func (f *UserRepo) GetByPKey(ctx context.Context, pkey *models.UserPrimarKey) (*
 		firstName   sql.NullString
 		lastName    sql.NullString
 		login       sql.NullString
+		typeu      sql.NullString
 		password    sql.NullString
 		phoneNumber sql.NullString
 		createdAt   sql.NullString
 		updatedAt   sql.NullString
+		typeuser     sql.NullString
 	)
 
 	if len(pkey.Login) > 0 {
 
-		err := f.db.QueryRow(ctx, "SELECT id FROM users WHERE login = $1 and password = $2", pkey.Login,pkey.Password).
-			Scan(&pkey.Id)
-
+		err := f.db.QueryRow(ctx, "SELECT id, typeu FROM users WHERE login = $1 and password = $2", pkey.Login,pkey.Password).
+			Scan(&pkey.Id,&typeuser)
+			fmt.Println(typeuser)
+			ab:=&models.UserPrimarKey{
+				TypeU: typeuser.String,
+			}
+			pkey.TypeU=ab.TypeU
 		if err != nil {
 			return nil, err
 		}
@@ -84,6 +92,7 @@ func (f *UserRepo) GetByPKey(ctx context.Context, pkey *models.UserPrimarKey) (*
 			first_name,
 			last_name,
 			login,
+			typeu,
 			password,
 			phone_number,
 			created_at,
@@ -99,6 +108,7 @@ func (f *UserRepo) GetByPKey(ctx context.Context, pkey *models.UserPrimarKey) (*
 			&firstName,
 			&lastName,
 			&login,
+			&typeu,
 			&password,
 			&phoneNumber,
 			&createdAt,
@@ -114,6 +124,7 @@ func (f *UserRepo) GetByPKey(ctx context.Context, pkey *models.UserPrimarKey) (*
 		FirstName:   firstName.String,
 		LastName:    lastName.String,
 		Login:       login.String,
+		TypeU: 		 typeu.String,
 		Password:    password.String,
 		PhoneNumber: phoneNumber.String,
 		CreatedAt:   createdAt.String,

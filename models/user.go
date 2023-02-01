@@ -4,6 +4,7 @@ type UserPrimarKey struct {
 	Id        string `json:"user_id"`
 	Login     string `json:"login"`
 	Password  string `json:"password"`
+	TypeU       string `json:"typeU"`
 }
 
 type CreateUser struct {

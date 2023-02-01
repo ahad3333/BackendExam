@@ -3,11 +3,14 @@ package handler
 import (
 	"context"
 	"errors"
+
 	"log"
 	"net/http"
 	"strconv"
 
+	"app/config"
 	"app/models"
+	"app/pkg/helper"
 
 	"github.com/gin-gonic/gin"
 )
@@ -95,6 +98,44 @@ func (h *Handler) GetListOrder(c *gin.Context) {
 		offsetStr = c.Query("offset")
 		limitStr  = c.Query("limit")
 	)
+	key := config.Load().AuthSecretKey
+
+	token := c.Request.Header["Authorization"][0]
+
+	keytype, err := helper.ParseClaims(token, key)
+
+	if keytype.TypeU =="cassir" {
+		if offsetStr != "" {
+			offset, err = strconv.Atoi(offsetStr)
+			if err != nil {
+				log.Println("error whiling offset:", err.Error())
+				c.JSON(http.StatusBadRequest, err.Error())
+				return
+			}
+		}
+
+		if limitStr != "" {
+			limit, err = strconv.Atoi(limitStr)
+			if err != nil {
+				log.Println("error whiling limit:", err.Error())
+				c.JSON(http.StatusBadRequest, err.Error())
+				return
+			}
+		}
+
+		res, err := h.storage.Order().GetList(context.Background(), &models.GetListOrderRequest{
+			Offset: int64(offset),
+			Limit:  int64(limit),
+		})
+
+		if err != nil {
+			log.Println("error whiling get list order:", err.Error())
+			c.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+
+	c.JSON(http.StatusCreated, res)
+}else{
 
 	if offsetStr != "" {
 		offset, err = strconv.Atoi(offsetStr)
@@ -114,7 +155,7 @@ func (h *Handler) GetListOrder(c *gin.Context) {
 		}
 	}
 
-	res, err := h.storage.Order().GetList(context.Background(), &models.GetListOrderRequest{
+	res, err := h.storage.Order().GetListInvestor(context.Background(), &models.GetListOrderRequest{
 		Offset: int64(offset),
 		Limit:  int64(limit),
 	})
@@ -125,8 +166,10 @@ func (h *Handler) GetListOrder(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, res)
+c.JSON(http.StatusCreated, res)
 }
+}
+
 
 // UpdateOrder godoc
 // @ID update_order

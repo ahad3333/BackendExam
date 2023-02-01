@@ -11,7 +11,6 @@ type CreateCar struct {
 	DailyLimit         float64  `json:"daily_limit"`
 	OverLimit          float64 `json:"over_limit"`
 	InvestorPercentage float64 `json:"investor_percentage"`
-	BranchPercentage   float64 `json:"branch_percentage"`
 	InvestorId         string  `json:"investor_id"`
 	BranchId           string  `json:"branch_id"`
 	Km                 float64 `json:"km"`
@@ -26,7 +25,6 @@ type Car struct {
 	DailyLimit         float64  `json:"daily_limit"`
 	OverLimit          float64 `json:"over_limit"`
 	InvestorPercentage float64 `json:"investor_percentage"`
-	BranchPercentage   float64 `json:"branch_percentage"`
 	InvestorId         string  `json:"investor_id"`
 	BranchId           string  `json:"branch_id"`
 	Km                 float64 `json:"km"`
@@ -43,7 +41,6 @@ type UpdateCar struct {
 	DailyLimit         float64 `json:"daily_limit"`
 	OverLimit          float64  `json:"over_limit"`
 	InvestorPercentage float64 `json:"investor_percentage"`
-	BranchPercentage   float64 `json:"branch_percentage"`
 	InvestorId         string  `json:"investor_id"`
 	BranchId           string  `json:"branch_id"`
 	Km                 float64 `json:"km"`
@@ -57,7 +54,6 @@ type UpdateCarSwag struct {
 	DailyLimit         float64 `json:"daily_limit"`
 	OverLimit          float64 `json:"over_limit"`
 	InvestorPercentage float64 `json:"investor_percentage"`
-	BranchPercentage   float64 `json:"branch_percentage"`
 	InvestorId         string  `json:"investor_id"`
 	BranchId           string  `json:"branch_id"`
 	Km                 float64     `json:"km"`

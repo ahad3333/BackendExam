@@ -70,7 +70,6 @@ func (h *Handler) CreateUser(c *gin.Context) {
 func (h *Handler) GetUserById(c *gin.Context) {
 
 	id := c.Param("id")
-
 	resp, err := h.storage.User().GetByPKey(
 		context.Background(),
 		&models.UserPrimarKey{Id: id},

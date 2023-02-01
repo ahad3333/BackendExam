@@ -1597,14 +1597,11 @@ const docTemplate = `{
                 "branch_id": {
                     "type": "string"
                 },
-                "branch_percentage": {
-                    "type": "number"
-                },
                 "crated_at": {
                     "type": "string"
                 },
                 "daily_limit": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "id": {
                     "type": "string"
@@ -1616,13 +1613,13 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "km": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "model": {
                     "type": "string"
                 },
                 "over_limit": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "price": {
                     "type": "number"
@@ -1692,11 +1689,8 @@ const docTemplate = `{
                 "branch_id": {
                     "type": "string"
                 },
-                "branch_percentage": {
-                    "type": "number"
-                },
                 "daily_limit": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "investor_id": {
                     "type": "string"
@@ -1705,13 +1699,13 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "km": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "model": {
                     "type": "string"
                 },
                 "over_limit": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "price": {
                     "type": "number"
@@ -1749,6 +1743,9 @@ const docTemplate = `{
         "models.CreateOrder": {
             "type": "object",
             "properties": {
+                "branch_id": {
+                    "type": "string"
+                },
                 "car_id": {
                     "type": "string"
                 },
@@ -1776,6 +1773,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "phone_number": {
+                    "type": "string"
+                },
+                "typeU": {
                     "type": "string"
                 }
             }
@@ -1973,6 +1973,9 @@ const docTemplate = `{
         "models.Order": {
             "type": "object",
             "properties": {
+                "branch_id": {
+                    "type": "string"
+                },
                 "car": {
                     "$ref": "#/definitions/models.CarOrder"
                 },
@@ -2028,11 +2031,8 @@ const docTemplate = `{
                 "branch_id": {
                     "type": "string"
                 },
-                "branch_percentage": {
-                    "type": "number"
-                },
                 "daily_limit": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "investor_id": {
                     "type": "string"
@@ -2041,13 +2041,13 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "km": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "model": {
                     "type": "string"
                 },
                 "over_limit": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "price": {
                     "type": "number"
@@ -2088,6 +2088,9 @@ const docTemplate = `{
         "models.UpdateOrderSwag": {
             "type": "object",
             "properties": {
+                "branch_id": {
+                    "type": "string"
+                },
                 "car_id": {
                     "type": "string"
                 },
@@ -2133,6 +2136,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "phone_number": {
+                    "type": "string"
+                },
+                "typeU": {
                     "type": "string"
                 },
                 "updated_at": {

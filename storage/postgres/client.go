@@ -113,13 +113,7 @@ func (r *ClientRepo) GetList(ctx context.Context, req *models.GetListClientReque
 		resp   = &models.GetListClientResponse{}
 	)
 
-	if req.Offset > 0 {
-		offset = fmt.Sprintf("OFFSET %d", req.Offset)
-	}
-
-	if req.Limit > 0 {
-		limit = fmt.Sprintf("LIMIT %d", req.Limit)
-	}
+	
 
 	query := `
 		SELECT
@@ -133,26 +127,31 @@ func (r *ClientRepo) GetList(ctx context.Context, req *models.GetListClientReque
 			updated_at
 		FROM client
 	`
+	if req.Offset > 0 {
+		offset = fmt.Sprintf(" OFFSET %d", req.Offset)
+	}
 
-	query += offset + limit
+	if req.Limit > 0 {
+		limit = fmt.Sprintf(" LIMIT %d", req.Limit)
+	}
+	query += offset +" "+ limit
 
 	rows, err := r.db.Query(ctx, query)
+
 	if err != nil {
 		return nil, err
 	}
+	var (
+		id          sql.NullString
+		firstName   sql.NullString
+		lastName    sql.NullString
+		address     sql.NullString
+		phoneNumber sql.NullString
+		createdAt   sql.NullString
+		updatedAt   sql.NullString
+	)
 
 	for rows.Next() {
-
-		var (
-			id          sql.NullString
-			firstName   sql.NullString
-			lastName    sql.NullString
-			address     sql.NullString
-			phoneNumber sql.NullString
-			createdAt   sql.NullString
-			updatedAt   sql.NullString
-		)
-
 		err = rows.Scan(
 			&resp.Count,
 			&id,
@@ -163,6 +162,8 @@ func (r *ClientRepo) GetList(ctx context.Context, req *models.GetListClientReque
 			&createdAt,
 			&updatedAt,
 		)
+		fmt.Println(resp)
+
 
 		resp.Clients = append(resp.Clients, &models.Client{
 			Id:          id.String,
@@ -202,6 +203,7 @@ func (r *ClientRepo) Update(ctx context.Context, client *models.UpdateClient) (i
 		"last_name":    client.LastName,
 		"address":      client.Address,
 		"phone_number": client.PhoneNumber,
+		"id": client.Id,
 	}
 
 	query, args := helper.ReplaceQueryParams(query, params)

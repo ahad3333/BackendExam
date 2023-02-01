@@ -17,21 +17,21 @@ import (
 	"app/storage"
 )
 
-func NewApi( cfg *config.Config, r *gin.Engine, storage storage.StorageI) {
+func NewApi(cfg *config.Config, r *gin.Engine, storage storage.StorageI, cache storage.CacheStorageI) {
 
-	handlerV1 := handler.NewHandler(cfg,storage)
+	handlerV1 := handler.NewHandler(cfg, storage, cache)
 
-	 	// @securityDefinitions.apikey ApiKeyAuth
-		// @in header
-		// @name Authorization
-	
-		v1 := r.Group("v1")
+	// @securityDefinitions.apikey ApiKeyAuth
+	// @in header
+	// @name Authorization
+
+	v1 := r.Group("v1")
 
 	r.Use(customCORSMiddleware())
 	v1.Use(SecurityMiddleware())
-	v1.GET("/user", handlerV1.GetUserList)
-	v1.GET("/order", handlerV1.GetListOrder)
 
+	v1.GET("/user", handlerV1.GetUserList)
+	v1.GET("/order",handlerV1.GetListOrder)
 
 	r.POST("/investor", handlerV1.CreateInvestor)
 	r.GET("/investor/:id", handlerV1.GetByIdInvestor)
@@ -68,13 +68,10 @@ func NewApi( cfg *config.Config, r *gin.Engine, storage storage.StorageI) {
 	r.GET("/report/investor-share", handlerV1.GetInvestorShare)
 	r.GET("/report/company-share", handlerV1.GetBranchShare)
 
-
 	r.POST("/login", handlerV1.Login)
 
 	r.POST("/user", handlerV1.CreateUser)
 	r.GET("/user/:id", handlerV1.GetUserById)
-
-
 
 	url := ginSwagger.URL("swagger/doc.json") // The url pointing to API definition
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler, url))
@@ -82,56 +79,63 @@ func NewApi( cfg *config.Config, r *gin.Engine, storage storage.StorageI) {
 
 func SecurityMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-  
-	  key:=config.Load().AuthSecretKey
-	 
-  
-	  if len(c.Request.Header["Authorization"]) > 0 {
-		token := c.Request.Header["Authorization"][0]
-		_, err := helper.ParseClaims(token, key)
-  
-		if err != nil {
-		  c.JSON(http.StatusUnauthorized, struct {
-			Code int
-			Err  string
-		  }{
-			Code: http.StatusUnauthorized,
-			Err:  errors.New("error access denied 2").Error(),
-		  })
-		  c.Abort()
-		  return
+
+		key := config.Load().AuthSecretKey
+
+		if len(c.Request.Header["Authorization"]) > 0 {
+
+			token := c.Request.Header["Authorization"][0]
+
+			_, err := helper.ParseClaims(token, key)
+
+			if err != nil {
+				c.JSON(http.StatusUnauthorized, struct {
+					Code int
+					Err  string
+				}{
+					Code: http.StatusUnauthorized,
+					Err:  errors.New("error access denied 2").Error(),
+				})
+				c.Abort()
+				return
+			}
+		} else {
+			c.JSON(http.StatusUnauthorized, struct {
+				Code int
+				Err  string
+			}{
+				Code: http.StatusUnauthorized,
+				Err:  errors.New("error access denied 1").Error(),
+			})
+			c.Abort()
+			return
 		}
-	  }else {
-		c.JSON(http.StatusUnauthorized, struct {
-		  Code int
-		  Err  string
-		}{
-		  Code: http.StatusUnauthorized,
-		  Err:  errors.New("error access denied 1").Error(),
-		})
-		c.Abort()
-		return
-	  }
-  
-	  c.Next()
+		c.Next()
+		
+		}
 	}
-  }
-  
-  func customCORSMiddleware() gin.HandlerFunc {
-  
+
+
+
+func Parse(s string) {
+	panic("unimplemented")
+}
+
+func customCORSMiddleware() gin.HandlerFunc {
+
 	return func(c *gin.Context) {
-  
-	  c.Header("Access-Control-Allow-Origin", "*")
-	  c.Header("Access-Control-Allow-Credentials", "true")
-	  c.Header("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, PATCH, DELETE, HEAD")
-	  c.Header("Access-Control-Allow-Headers", "Platform-Id, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-	  c.Header("Access-Control-Max-Age", "3600")
-  
-	  if c.Request.Method == "OPTIONS" {
-		c.AbortWithStatus(204)
-		return
-	  }
-  
-	  c.Next()
+
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Credentials", "true")
+		c.Header("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, PATCH, DELETE, HEAD")
+		c.Header("Access-Control-Allow-Headers", "Platform-Id, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Header("Access-Control-Max-Age", "3600")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
 	}
-  }
+}
